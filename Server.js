@@ -14,7 +14,7 @@ const app = express();
 // Configure CORS to accept requests from your production Netlify domain or local environment
 app.use(cors({
     origin: [
-        'https://your-smm-panel.netlify.app', // <-- REPLACE with your actual live Netlify link
+        'https://asmhereee.netlify.app', // <-- REPLACE with your actual live Netlify link
         'http://localhost:3000',
         'http://127.0.0.1:5500',
         'http://localhost:5000'
