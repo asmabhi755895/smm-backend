@@ -10,13 +10,14 @@ const PaymentRequest = require("./models/PaymentRequest");
 
 const app = express();
 
-
 app.use(cors({
   origin: [
+    "https://growthgenie.netlify.app",
     "http://localhost:5173",
-    "http://localhost:3000",
-    "https://growthgenie.netlify.app"
+    "http://localhost:3000"
   ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
