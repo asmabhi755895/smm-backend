@@ -9,6 +9,7 @@ const User = require("./models/User");
 const PaymentRequest = require("./models/PaymentRequest");
 
 const app = express();
+app.use(express.json());
 
 const allowedOrigins = [
   "https://growthgenie.netlify.app",
