@@ -20,7 +20,9 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+app.get("/", (req, res) => {
+  res.json({ message: "SocialBoost API is running" });
+});
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
