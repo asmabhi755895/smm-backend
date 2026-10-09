@@ -37,7 +37,7 @@ function Wallet() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/me",
+          "https://socialboost-api-5ma2.onrender.com/api/auth/me",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -96,7 +96,7 @@ function Wallet() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/wallet/upi-request",
+        "https://socialboost-api-5ma2.onrender.com/api/wallet/upi-request",
         {
           method: "POST",
           headers: {

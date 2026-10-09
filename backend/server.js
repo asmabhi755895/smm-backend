@@ -429,27 +429,6 @@ app.post("/api/wallet/upi-request", authenticateToken, async (req, res) => {
 }
 });
 
-// HOME
-app.get("/", (req, res) => {
-  res.json({
-    message: "SMM Panel API is running"
-  });
-});
-// HOME
-app.get("/", (req, res) => {
-  res.json({
-    message: "SMM Panel API is running"
-  });
-});
-
-
-
- // HOME
-app.get("/", (req, res) => {
-  res.json({
-    message: "SMM Panel API is running"
-  });
-});
 
 // ADD THE ADMIN STATS CODE HERE
 app.get("/api/admin/stats", async (req, res) => {

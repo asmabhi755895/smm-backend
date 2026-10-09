@@ -44,15 +44,23 @@ function Home() {
   </div>
 
   {/* Desktop buttons */}
-  <div className="nav-buttons">
-    <button className="login-btn">
-      Login
-    </button>
 
-    <button className="register-btn">
-      Get Started
-    </button>
-  </div>
+<div className="nav-buttons">
+  <button
+    className="login-btn"
+    onClick={() => window.location.href = "/login"}
+  >
+    Login
+  </button>
+
+  <button
+    className="register-btn"
+    onClick={() => window.location.href = "/register"}
+  >
+    Get Started
+  </button>
+</div>
+
 
   {/* Mobile menu button */}
   <button
@@ -132,20 +140,24 @@ function Home() {
             reach the right audience.
           </p>
 
-          <div className="hero-buttons">
-<button
-  className="primary-btn"
-  onClick={() => window.location.href = "/services"}
->
-  Explore Services
-  <ArrowRight size={18} />
-</button>
 
-            <button className="secondary-btn">
-              Create Account
-            </button>
+<div className="hero-buttons">
+  <button
+    className="primary-btn"
+    onClick={() => window.location.href = "/register"}
+  >
+    Create Account
+    <ArrowRight size={18} />
+  </button>
 
-          </div>
+  <button
+    className="secondary-btn"
+    onClick={() => window.location.href = "/login"}
+  >
+    Login
+  </button>
+</div>
+
 
 
           <div className="trust-row">
@@ -183,7 +195,7 @@ function Home() {
 
             <div>
               <strong>Instagram</strong>
-              <span>Promotion</span>
+              <span>Services</span>
             </div>
 
           </div>
@@ -196,7 +208,7 @@ function Home() {
 
             <div>
               <strong>YouTube</strong>
-              <span>Promotion</span>
+              <span>Servies</span>
             </div>
 
           </div>
@@ -231,7 +243,7 @@ function Home() {
                 </small>
 
                 <strong>
-                  24
+                  248
                 </strong>
               </div>
 
@@ -242,7 +254,7 @@ function Home() {
                 </small>
 
                 <strong>
-                  18.4K
+                  18.4M
                 </strong>
               </div>
 
@@ -253,7 +265,7 @@ function Home() {
                 </small>
 
                 <strong>
-                  +28%
+                  +618%
                 </strong>
               </div>
 

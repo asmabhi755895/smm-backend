@@ -20,7 +20,7 @@ function Orders() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/orders", {
+        const response = await fetch("https://socialboost-api-5ma2.onrender.com/api/orders", {
           headers: {
             Authorization: `Bearer ${token}`
           }

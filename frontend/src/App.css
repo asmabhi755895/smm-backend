@@ -950,3 +950,44 @@ footer {
     bottom: 5px;
   }
 }
+
+/* Keep the floating social cards aligned outside the graph */
+.hero-card {
+  position: relative;
+  overflow: visible;
+}
+
+.dashboard-preview {
+  position: relative;
+  z-index: 1;
+}
+
+.floating-card {
+  position: absolute;
+  z-index: 3;
+}
+
+/* Instagram: upper-left outside the graph */
+.instagram-card {
+  top: 8%;
+  left: -7%;
+}
+
+/* YouTube: lower-right outside the graph */
+.youtube-card {
+  bottom: 8%;
+  right: -7%;
+}
+
+/* Prevent floating cards from overflowing on small screens */
+@media (max-width: 768px) {
+  .instagram-card {
+    left: 0;
+    top: -8%;
+  }
+
+  .youtube-card {
+    right: 0;
+    bottom: -4%;
+  }
+}
