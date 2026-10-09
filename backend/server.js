@@ -449,7 +449,9 @@ app.get("/api/admin/stats", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-
+console.log("PROFILE ROUTE CHECK:", app._router.stack
+  .filter(r => r.route)
+  .map(r => `${Object.keys(r.route.methods).join(",")} ${r.route.path}`));
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
