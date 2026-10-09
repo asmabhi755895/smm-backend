@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserRound, Wallet, LogOut } from "lucide-react";
@@ -15,13 +14,14 @@ function Profile() {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        navigate("/login");
+        setError("No login token found. Please log in again.");
+        setLoading(false);
         return;
       }
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/me",
+          "https://socialboost-api-5ma2.onrender.com/api/auth/me",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -29,25 +29,47 @@ function Profile() {
           }
         );
 
-        const data = await response.json();
+        const responseText = await response.text();
+        console.log("Profile API status:", response.status);
+        console.log("Profile API response:", responseText);
+
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          data = { message: responseText };
+        }
 
         if (!response.ok) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          navigate("/login");
+          setError(
+            `Backend error (${response.status}): ${
+              data.message || "Unknown error"
+            }`
+          );
+          setLoading(false);
           return;
         }
 
-        setUser(data.user);
-      } catch {
-        setError("Unable to load your profile.");
+        // Supports either { user: {...} } or a direct user object.
+        const profile = data.user || data;
+
+        if (!profile || (!profile.name && !profile.email)) {
+          setError("The backend responded, but no user profile was returned.");
+          setLoading(false);
+          return;
+        }
+
+        setUser(profile);
+      } catch (err) {
+        console.error("Profile fetch failed:", err);
+        setError("Unable to contact the backend. Check your connection.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, [navigate]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
