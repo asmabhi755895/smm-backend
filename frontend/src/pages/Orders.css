@@ -1,0 +1,147 @@
+
+.orders-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #090a10;
+  color: #f8fafc;
+  font-family: inherit;
+}
+
+
+.orders-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid #383047;
+  border-radius: 10px;
+  background: #15121f;
+  color: #c4a7ff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.orders-back-button:hover {
+  background: #241936;
+  border-color: #9257f5;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.orders-back-button:active {
+  transform: scale(0.98);
+}
+
+
+.orders-heading {
+  margin-top: 24px;
+  font-size: 30px;
+}
+
+.orders-subtitle {
+  margin-top: 8px;
+  color: #9ca3b8;
+}
+
+.orders-empty {
+  margin-top: 50px;
+  padding: 40px 20px;
+  text-align: center;
+  background: #101119;
+  border: 1px dashed #292d3d;
+  border-radius: 16px;
+}
+
+.orders-empty svg {
+  color: #a176ff;
+}
+
+.orders-empty h3 {
+  margin: 14px 0 8px;
+}
+
+.orders-empty p {
+  color: #9ca3b8;
+  margin-bottom: 20px;
+}
+
+.orders-primary-button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #9257f5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.orders-primary-button:hover {
+  background: #7c3aed;
+}
+
+.order-item {
+  margin-top: 14px;
+  padding: 18px;
+  background: #12141e;
+  border: 1px solid #292d3d;
+  border-radius: 14px;
+  overflow-wrap: anywhere;
+}
+
+.order-item p {
+  color: #aab1c5;
+  margin: 8px 0;
+}
+
+@media (max-width: 600px) {
+  .orders-page {
+    padding: 20px 16px;
+  }
+
+  .orders-heading {
+    font-size: 26px;
+  }
+
+  .orders-empty {
+    padding: 32px 16px;
+  }
+}
+
+button.orders-back-button {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 11px 16px !important;
+  background: #15121f !important;
+  color: #c4a7ff !important;
+  border: 1px solid #9257f5 !important;
+  border-radius: 10px !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.orders-page .orders-back-button {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  background-color: #15121f;
+  color: #c4a7ff;
+  border: 1px solid #9257f5;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}

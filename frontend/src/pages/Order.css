@@ -1,0 +1,493 @@
+.order-page {
+  min-height: 100vh;
+
+  padding: 25px 15px 80px;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(139, 92, 246, 0.14),
+      transparent 35%
+    ),
+    #08090d;
+
+  color: white;
+}
+
+.order-container {
+  width: 100%;
+  max-width: 600px;
+
+  margin: auto;
+}
+
+
+/* BACK BUTTON */
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  background: transparent;
+
+  border: 0;
+
+  color: #999;
+
+  font-size: 13px;
+
+  padding: 8px 0;
+}
+
+
+/* HEADER */
+
+.order-header {
+  margin-top: 30px;
+}
+
+.order-header > span {
+  color: #8b5cf6;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+.order-header h1 {
+  margin-top: 10px;
+
+  font-size: 30px;
+
+  line-height: 1.1;
+}
+
+.order-header p {
+  margin-top: 8px;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+
+/* SELECTED SERVICE */
+
+.selected-service {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 25px;
+
+  padding: 16px;
+
+  background: #15161d;
+
+  border: 1px solid #292a34;
+
+  border-radius: 12px;
+}
+
+.selected-service div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.selected-service span {
+  color: #777;
+
+  font-size: 10px;
+}
+
+.selected-service strong {
+  font-size: 13px;
+}
+
+.rate {
+  text-align: right;
+}
+
+.rate strong {
+  color: #a78bfa;
+
+  font-size: 16px;
+}
+
+.rate small {
+  color: #777;
+
+  font-size: 9px;
+
+  margin-left: 2px;
+}
+
+
+/* ORDER CARD */
+
+.order-card {
+  margin-top: 12px;
+
+  padding: 18px;
+
+  background: #101117;
+
+  border: 1px solid #252630;
+
+  border-radius: 15px;
+}
+
+
+/* LABEL */
+
+.order-card label {
+  display: block;
+
+  margin-top: 18px;
+  margin-bottom: 8px;
+
+  color: #ccc;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.order-card label:first-child {
+  margin-top: 0;
+}
+
+
+/* INPUT */
+
+.order-card input {
+  width: 100%;
+
+  height: 46px;
+
+  padding: 0 13px;
+
+  background: #181921;
+
+  border: 1px solid #292a34;
+
+  border-radius: 9px;
+
+  color: white;
+
+  outline: none;
+
+  font-size: 13px;
+}
+
+.order-card input:focus {
+  border-color: #8b5cf6;
+}
+
+.order-card input[type="number"] {
+  font-size: 16px;
+}
+
+
+/* INFO */
+
+.order-card small {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #666;
+
+  font-size: 10px;
+}
+
+
+/* QUANTITY INFO */
+
+.quantity-info {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-top: 7px;
+}
+
+.quantity-info span {
+  color: #666;
+
+  font-size: 9px;
+}
+
+
+/* PRICE BOX */
+
+.price-box {
+  margin-top: 25px;
+
+  padding: 15px;
+
+  background: #15161d;
+
+  border-radius: 10px;
+}
+
+.price-box > div {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 8px 0;
+}
+
+.price-box span {
+  color: #777;
+
+  font-size: 11px;
+}
+
+.price-box strong {
+  color: #ddd;
+
+  font-size: 12px;
+}
+
+.total-row {
+  margin-top: 8px;
+
+  padding-top: 15px !important;
+
+  border-top: 1px solid #292a34;
+}
+
+.total-row span {
+  color: white;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.total-row strong {
+  color: #a78bfa;
+
+  font-size: 20px;
+}
+
+
+/* BUTTON */
+
+.start-button {
+  width: 100%;
+
+  height: 48px;
+
+  margin-top: 18px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  background: #8b5cf6;
+
+  color: white;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.start-button:active {
+  transform: scale(0.98);
+}
+
+.start-button:disabled {
+  background: #292633;
+
+  color: #666;
+
+  cursor: not-allowed;
+}
+
+.order-add-funds-button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 18px;
+  background: #9257f5;
+  color: #ffffff;
+  border: 1px solid #9257f5;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.order-add-funds-button:hover {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  transform: translateY(-1px);
+}
+
+.order-add-funds-button:active {
+  transform: scale(0.98);
+}
+
+/* Service and package dropdowns */
+.order-card select {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: 10px 0 22px;
+  padding: 13px 15px;
+  background-color: #191923;
+  color: #ffffff;
+  border: 1px solid #343444;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  cursor: pointer;
+  color-scheme: dark;
+}
+
+.order-card select:focus {
+  border-color: #9561ff;
+  box-shadow: 0 0 0 2px rgba(149, 97, 255, 0.15);
+}
+
+.order-card select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.order-card select option {
+  background-color: #191923;
+  color: #ffffff;
+  padding: 12px;
+}
+
+/* Selected service panel */
+.selected-service {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 12px 0 22px;
+  padding: 20px;
+  background: #15151e;
+  border: 1px solid #30303e;
+  border-radius: 15px;
+}
+
+.selected-service > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.selected-service span,
+.price-box span {
+  color: #9292a8;
+  font-size: 13px;
+}
+
+.selected-service strong {
+  color: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+.selected-service .rate {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.selected-service .rate strong {
+  color: #a477ff;
+}
+
+/* Package information */
+.order-card .price-box {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 20px;
+  background: #15151e;
+  border: 1px solid #282835;
+  border-radius: 14px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.order-card .price-box > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.order-card .price-box strong {
+  color: #ffffff;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.order-card .price-box .total-row {
+  border-top: 1px solid #343444;
+  padding-top: 18px;
+}
+
+.order-card .price-box .total-row strong {
+  color: #a477ff;
+  font-size: 22px;
+}
+
+.order-card .price-box p {
+  color: #a7a7ba;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .order-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 18px 14px;
+    box-sizing: border-box;
+  }
+
+  .order-header h1 {
+    font-size: 28px;
+  }
+
+  .selected-service {
+    padding: 15px;
+  }
+
+  .order-card select {
+    font-size: 14px;
+  }
+
+  .order-card .price-box {
+    padding: 15px;
+  }
+}
