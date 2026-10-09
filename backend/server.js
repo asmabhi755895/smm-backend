@@ -10,12 +10,20 @@ const PaymentRequest = require("./models/PaymentRequest");
 
 const app = express();
 
+const allowedOrigins = [
+  "https://growthgenie.netlify.app",
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
+
 app.use(cors({
-  origin: [
-    "https://growthgenie.netlify.app",
-    "http://localhost:5173",
-    "http://localhost:3000"
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Origin not allowed by CORS: " + origin));
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
