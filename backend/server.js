@@ -10,7 +10,16 @@ const PaymentRequest = require("./models/PaymentRequest");
 
 const app = express();
 
-app.use(cors());
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://growthgenie.netlify.app"
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
