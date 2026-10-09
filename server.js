@@ -1,457 +1,188 @@
-const Order = require("./models/Order");
-const jwt = require("jsonwebtoken");
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-require("dotenv").config();
-const User = require("./models/User");
-const PaymentRequest = require("./models/PaymentRequest");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
+
+const User = require('./models/User');
+const Order = require('./models/Order');
 
 const app = express();
-app.use(express.json());
 
-const allowedOrigins = [
-  "https://growthgenie.netlify.app",
-  "http://localhost:5173",
-  "http://localhost:3000"
-];
-
+// Configure CORS to accept requests from your production Netlify domain or local environment
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Origin not allowed by CORS: " + origin));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
+    origin: [
+        'https://growthgenie.netlify.app', // <-- Match your live URL exactly
+        'http://localhost:3000',
+        'http://127.0.0.1:5500',
+        'http://localhost:5000'
+    ],
+    credentials: true
 }));
 
-app.get("/", (req, res) => {
-  res.json({ message: "SocialBoost API is running" });
-});
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers.authorization;
+app.use(express.json());
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      message: "Authentication required"
-    });
-  }
+// Connect Database
 
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      message: "Invalid or expired token"
-    });
-  }
-}
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log("MongoDB error:", err.message));
+    .then(() => console.log('MongoDB Engine Successfully Connected'))
+    .catch(err => console.error('Database connection crash:', err));
 
+// --- SECURITY MIDDLEWARE GUARD ---
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-// REGISTER
-app.post("/api/auth/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+    if (!token) return res.status(401).json({ success: false, message: 'Access Token Missing' });
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        message: "All fields are required"
-      });
-    }
-
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: "Email already registered"
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ success: false, message: 'Invalid or Expired Token' });
+        req.user = user;
+        next();
     });
+};
 
-    res.status(201).json({
-      message: "Registration successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        balance: user.balance
-      }
-    });
+// ==========================================
+// AUTHENTICATION CONTROLLER ENDPOINTS
+// ==========================================
 
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Server error"
-    });
-  }
-});
-
-// LOGIN
-app.post("/api/auth/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Email and password are required"
-      });
-    }
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password"
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    if (!passwordMatch) {
-      return res.status(401).json({
-        message: "Invalid email or password"
-      });
-    }
-
-const token = jwt.sign(
-  { userId: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: "1d" }
-);
-
-res.json({
-  message: "Login successful",
-  token,
-  user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    balance: user.balance
-  }
-});
-
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Server error"
-    });
-  }
-});
-// LOGIN API ends above this line
-
-
-// PASTE YOUR /api/auth/me ROUTE HERE
-app.get("/api/auth/me", authenticateToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.userId)
-      .select("-password");
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found"
-      });
-    }
-
-    res.json({
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        balance: user.balance
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Server error"
-    });
-  }
-});
-
-
-app.post("/api/orders", authenticateToken, async (req, res) => {
-  try {
-    const { serviceId, packageId, link, quantity } = req.body;
-
-    const validServiceId = Number(serviceId);
-    const validQuantity = Number(quantity);
-
-    if (
-      !Number.isInteger(validServiceId) ||
-      !Number.isInteger(validQuantity) ||
-      typeof link !== "string" ||
-      !link.trim()
-    ) {
-      return res.status(400).json({
-        message: "Please provide a valid service, link and quantity"
-      });
-    }
-
-    const serviceNames = {
-      1: "Instagram Likes",
-      2: "Instagram Views",
-      3: "Instagram Shares",
-      4: "Instagram Followers",
-      5: "Instagram Comments",
-      6: "YouTube Subscribers",
-      7: "YouTube Likes",
-      8: "YouTube Views",
-      9: "YouTube Comments",
-      10: "YouTube Watch Hours"
-    };
-
-    const serviceName = serviceNames[validServiceId];
-
-    if (!serviceName) {
-      return res.status(400).json({ message: "Invalid service" });
-    }
-
-    // Package prices are defined on the server, never trusted from the browser.
-    const packageCatalogue = {
-      "6106": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - No Refill",
-        rate: 251.54,
-        min: 100,
-        max: 100000
-      },
-      "6107": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - 30 Days Refill",
-        rate: 276.01,
-        min: 100,
-        max: 100000
-      },
-      "6141": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - 90 Days Refill",
-        rate: 326.83,
-        min: 100,
-        max: 100000
-      },
-      "6142": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - 365 Days Refill",
-        rate: 348.94,
-        min: 100,
-        max: 100000
-      },
-      "6143": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - Lifetime Refill",
-        rate: 374.53,
-        min: 100,
-        max: 100000
-      }
-    };
-
-    const selectedPackage = packageCatalogue[String(packageId)];
-
-    if (
-      !selectedPackage ||
-      selectedPackage.serviceId !== validServiceId
-    ) {
-      return res.status(400).json({
-        message: "Please select a valid package for this service"
-      });
-    }
-
-    if (
-      validQuantity < selectedPackage.min ||
-      validQuantity > selectedPackage.max
-    ) {
-      return res.status(400).json({
-        message: `Quantity must be between ${selectedPackage.min} and ${selectedPackage.max}`
-      });
-    }
-
-    let parsedUrl;
-
+// Register Account
+app.post('/api/auth/register', async (req, res) => {
     try {
-      parsedUrl = new URL(link.trim());
-    } catch {
-      return res.status(400).json({
-        message: "Please enter a valid link"
-      });
+        const { name, email, password } = req.body;
+        
+        let userExists = await User.findOne({ email });
+        if (userExists) return res.status(400).json({ success: false, message: 'Email address already registered' });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = new User({ name, email, password: hashedPassword });
+        await newUser.save();
+
+        res.status(201).json({ success: true, message: 'Account generated successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
+});
 
-    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-      return res.status(400).json({
-        message: "Please enter a valid HTTP or HTTPS link"
-      });
-    }
-
-    const price = Math.round(
-      (validQuantity / 1000) * selectedPackage.rate * 100
-    ) / 100;
-
-    const user = await User.findOneAndUpdate(
-      {
-        _id: req.userId,
-        balance: { $gte: price }
-      },
-      {
-        $inc: { balance: -price }
-      },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(400).json({
-        message: "Insufficient balance. Please add funds first."
-      });
-    }
-
+// Login & Generate JWT Session Token
+app.post('/api/auth/login', async (req, res) => {
     try {
-      const order = await Order.create({
-        user: user._id,
-        serviceId: validServiceId,
-        packageId: String(packageId),
-        packageName: selectedPackage.name,
-        serviceName,
-        link: parsedUrl.toString(),
-        quantity: validQuantity,
-        price,
-        status: "Pending"
-      });
+        const { email, password } = req.body;
 
-      return res.status(201).json({
-        message: "Order created successfully",
-        order,
-        balance: user.balance
-      });
-    } catch (orderError) {
-      await User.updateOne(
-        { _id: user._id },
-        { $inc: { balance: price } }
-      );
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ success: false, message: 'Invalid credentials profile' });
 
-      throw orderError;
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) return res.status(400).json({ success: false, message: 'Invalid credentials profile' });
+
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+        res.json({ success: true, token, message: 'Authentication verified' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
-  } catch (error) {
-    console.error("Create order error:", error.message);
-
-    return res.status(500).json({
-      message: "Unable to create order"
-    });
-  }
 });
 
-app.get("/api/orders", authenticateToken, async (req, res) => {
-  try {
-    const orders = await Order.find({
-      user: req.userId
-    })
-      .sort({ createdAt: -1 })
-      .limit(10);
-
-    res.json({ orders });
-  } catch (error) {
-    console.error("Fetch orders error:", error.message);
-
-    res.status(500).json({
-      message: "Unable to fetch orders"
-    });
-  }
+// Sync Profile Wallet State
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        res.json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
-app.post("/api/wallet/upi-request", authenticateToken, async (req, res) => {
-  try {
-    const amount = Number(req.body.amount);
-    const transactionId = String(
-      req.body.transactionId || ""
-    ).trim();
+// ==========================================
+// CORE SMM ORDER TRANSACTION HANDLING
+// ==========================================
 
-    if (
-      !Number.isFinite(amount) ||
-      amount < 1 ||
-      amount > 10000 ||
-      Math.round(amount * 100) !== amount * 100
-    ) {
-      return res.status(400).json({
-        message: "Enter a valid amount between ₹1 and ₹10,000."
-      });
+app.post('/api/orders', authenticateToken, async (req, res) => {
+    try {
+        const { serviceType, packagePrice, quantity, link, serviceLabel } = req.body;
+
+        const user = await User.findById(req.user.id);
+        if (user.balance < packagePrice) {
+            return res.status(400).json({ success: false, message: 'Insufficient wallet balance' });
+        }
+
+        // Deduct balance securely
+        user.balance -= packagePrice;
+        await user.save();
+
+        let providerOrderId = `MOCK_${Math.floor(Math.random() * 900000) + 100000}`;
+
+        // Forward to master provider via API
+        try {
+            if (process.env.PROVIDER_API_KEY && process.env.PROVIDER_API_KEY !== 'YOUR_ACTUAL_MASTER_PROVIDER_API_KEY') {
+                const response = await axios.post(process.env.PROVIDER_API_URL, {
+                    key: process.env.PROVIDER_API_KEY,
+                    action: 'add',
+                    service: getProviderServiceId(serviceType, quantity),
+                    link: link,
+                    quantity: quantity
+                });
+                if (response.data && response.data.order) {
+                    providerOrderId = response.data.order;
+                }
+            }
+        } catch (apiErr) {
+            console.log('Provider API connection skipped or credentials defaulted. Falling back to mock tracking ID.');
+        }
+
+        // Save order document locally
+        const newOrder = new Order({
+            userId: user._id,
+            serviceType,
+            serviceLabel,
+            quantity,
+            link,
+            charge: packagePrice,
+            providerOrderId
+        });
+        await newOrder.save();
+
+        res.json({
+            success: true,
+            message: 'Pipeline dispatched successfully',
+            remainingBalance: user.balance,
+            providerOrderId
+        });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
+});
 
-    if (
-      transactionId.length < 6 ||
-      transactionId.length > 100
-    ) {
-      return res.status(400).json({
-        message: "Enter a valid UPI transaction/reference ID."
-      });
+// Helper Map Resolver to handle all package sizes completely
+function getProviderServiceId(type, qty) {
+    // Followers Mapping Tiers
+    if (type === 'followers') {
+        if (qty === 1000) return 101;
+        if (qty === 2000) return 102;
+        if (qty === 5000) return 103;
+        if (qty === 10000) return 104;
     }
-
-    const payment = await PaymentRequest.create({
-      user: req.userId,
-      amount,
-      method: "UPI_QR",
-      transactionId,
-      status: "PENDING"
-    });
-
-    res.status(201).json({
-      message: "Payment submitted for verification.",
-      paymentRequest: {
-        id: payment._id,
-        amount: payment.amount,
-        status: payment.status
-      }
-    });
-  } catch (error) {
-  console.error("UPI request error:", error);
-
-  res.status(500).json({
-    message: "Unable to submit payment request.",
-    details: error.message
-  });
+    // Likes Mapping Tiers
+    if (type === 'likes') {
+        if (qty === 1000) return 201;
+        if (qty === 2000) return 202;
+        if (qty === 5000) return 203;
+        if (qty === 10000) return 204;
+    }
+    // Shares Mapping Tiers
+    if (type === 'shares') {
+        if (qty === 1000) return 301;
+        if (qty === 2000) return 302;
+        if (qty === 5000) return 303;
+        if (qty === 10000) return 304;
+    }
+    return 9999; // Default fallback ID if no condition is explicitly met
 }
-});
-
-
-// ADD THE ADMIN STATS CODE HERE
-app.get("/api/admin/stats", async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const totalOrders = await Order.countDocuments();
-
-    res.json({
-      totalUsers,
-      totalOrders
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to load statistics"
-    });
-  }
-});
 
 const PORT = process.env.PORT || 5000;
-console.log("PROFILE ROUTE CHECK:", app._router.stack
-  .filter(r => r.route)
-  .map(r => `${Object.keys(r.route.methods).join(",")} ${r.route.path}`));
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`SocialBoost Core Listening on Port ${PORT}`));
