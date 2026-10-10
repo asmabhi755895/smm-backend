@@ -16,12 +16,41 @@ function Admin() {
     totalOrders: 0
   });
 
-  useEffect(() => {
-    fetch("https://socialboost-api-5ma2.onrender.com/api/admin/stats")
-      .then((res) => res.json())
-      .then((data) => setStats(data))
-      .catch((error) => console.error("Stats error:", error));
-  }, []);
+
+useEffect(() => {
+  const fetchStats = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No login token found. Please log in first.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://socialboost-api-5ma2.onrender.com/api/admin/stats",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `Request failed: ${response.status}`);
+      }
+
+      setStats(data);
+    } catch (error) {
+      console.error("Stats error:", error.message);
+    }
+  };
+
+  fetchStats();
+}, []);
+
 
   return (
     <div className="admin-page">
