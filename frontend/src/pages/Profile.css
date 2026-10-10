@@ -1,0 +1,131 @@
+
+.profile-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #090a10;
+  color: #f8fafc;
+  font-family: inherit;
+}
+
+.profile-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  background: #15121f;
+  color: #c4a7ff;
+  border: 1px solid #383047;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-back-button:hover {
+  background: #241936;
+  border-color: #9257f5;
+}
+
+.profile-heading {
+  margin: 32px 0 24px;
+}
+
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  background: #211833;
+  color: #a176ff;
+  border: 1px solid #383047;
+  border-radius: 18px;
+}
+
+.profile-heading h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+
+.profile-heading p {
+  color: #9ca3b8;
+}
+
+.profile-card {
+  max-width: 560px;
+  padding: 24px;
+  background: #101119;
+  border: 1px solid #292d3d;
+  border-radius: 16px;
+}
+
+.profile-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid #292d3d;
+}
+
+.profile-row span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3b8;
+}
+
+.profile-row strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.profile-wallet-button,
+.profile-logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-wallet-button {
+  background: #9257f5;
+  color: white;
+  border: 1px solid #9257f5;
+}
+
+.profile-wallet-button:hover {
+  background: #7c3aed;
+}
+
+.profile-logout-button {
+  background: #15121f;
+  color: #fca5a5;
+  border: 1px solid #59303b;
+}
+
+.profile-logout-button:hover {
+  background: #28151c;
+}
+
+@media (max-width: 600px) {
+  .profile-page {
+    padding: 20px 16px;
+  }
+
+  .profile-card {
+    padding: 18px;
+  }
+
+  .profile-heading h1 {
+    font-size: 26px;
+  }
+}
