@@ -76,7 +76,14 @@ useEffect(() => {
         throw new Error(data.message || "Unable to load orders");
       }
 
-      setRecentOrders((data.orders || []).slice(0, 5));
+const ordersList = Array.isArray(data)
+  ? data
+  : Array.isArray(data.orders)
+    ? data.orders
+    : [];
+
+console.log("Orders API response:", data);
+setRecentOrders(ordersList.slice(0, 5));
     } catch (error) {
       console.error("Recent orders error:", error.message);
     }
