@@ -8,7 +8,7 @@ require("dotenv").config();
 const User = require("./models/User");
 const PaymentRequest = require("./models/PaymentRequest");
 const SupportTicket = require("./models/SupportTicket");
-
+const WalletTransaction = require("./models/WalletTransaction");
 const app = express();
 app.use(express.json());
 
@@ -355,6 +355,16 @@ const packageCatalogue = {
         price,
         status: "Pending"
       });
+
+await WalletTransaction.create({
+  user: user._id,
+  type: "ORDER_PAYMENT",
+  amount: price,
+  description: `Payment for ${serviceName}`,
+  status: "COMPLETED",
+  reference: String(order._id),
+  balanceAfter: user.balance
+});
 
       return res.status(201).json({
         message: "Order created successfully",
