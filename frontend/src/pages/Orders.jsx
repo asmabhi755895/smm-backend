@@ -95,7 +95,17 @@ try {
           <h3>{order.serviceName}</h3>
           <p>Quantity: {Number(order.quantity).toLocaleString()}</p>
           <p>Price: ₹{Number(order.price || 0).toFixed(2)}</p>
-          <p>Status: {order.status}</p>
+         <p className="orders-status-row">
+  <span>Status</span>
+  <strong
+    className={`orders-status-badge ${
+      String(order.status || "Pending").toLowerCase().replace(/\s+/g, "-")
+    }`}
+  >
+    <span className="status-dot" />
+    {order.status || "Pending"}
+  </strong>
+</p>
           <p style={{ overflowWrap: "anywhere" }}>
             Link: {order.link}
           </p>

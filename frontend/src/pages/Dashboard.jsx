@@ -266,46 +266,93 @@ useEffect(() => {
 
         </div>
 
-      
 {/* RECENT ORDERS */}
 
-<div className="dashboard-section-title">
-  Recent Orders
+<div className="recent-orders-heading">
+  <div>
+    <div className="dashboard-section-title">Recent Orders</div>
+    <p>Your latest activity</p>
+  </div>
+
+  {orders.length > 0 && (
+    <button
+      className="view-all-orders"
+      onClick={() => navigate("/orders")}
+    >
+      View all <ArrowRight size={15} />
+    </button>
+  )}
 </div>
 
 <div className="recent-orders">
   {ordersLoading ? (
-    <p>Loading orders...</p>
+    <div className="orders-message">
+      <span className="orders-loading-dot" />
+      Loading your orders...
+    </div>
   ) : orders.length === 0 ? (
     <div className="empty-orders">
-      <ShoppingCart size={30} />
+      <div className="empty-orders-icon">
+        <ShoppingCart size={26} />
+      </div>
+
       <strong>No orders yet</strong>
-      <p>Your recent orders will appear here.</p>
+      <p>Your placed orders will appear here.</p>
+
       <button onClick={() => navigate("/order")}>
-        Place Your First Order
+        Place your first order <ArrowRight size={16} />
       </button>
     </div>
   ) : (
-    orders.slice(0, 5).map((order) => (
-      <div className="recent-order-item" key={order._id}>
-        <div>
-          <strong>{order.serviceName}</strong>
-          <p>Quantity: {Number(order.quantity).toLocaleString()}</p>
-          <small>
-            {order.createdAt
-              ? new Date(order.createdAt).toLocaleDateString()
-              : ""}
-          </small>
-        </div>
+    <div className="recent-orders-list">
+      {orders.slice(0, 5).map((order, index) => {
+        const status = String(order.status || "Pending");
+        const statusClass = status.toLowerCase().replace(/\s+/g, "-");
 
-        <div className="recent-order-right">
-          <strong>₹{Number(order.price || 0).toFixed(2)}</strong>
-          <span className={`order-status ${String(order.status || "Pending").toLowerCase()}`}>
-            {order.status || "Pending"}
-          </span>
-        </div>
-      </div>
-    ))
+        return (
+          <article
+            className="recent-order-item"
+            key={order._id}
+            style={{ "--order-index": index }}
+          >
+            <div className="recent-order-main">
+              <div className="recent-order-icon">
+                <ShoppingCart size={19} />
+              </div>
+
+              <div className="recent-order-info">
+                <strong>{order.serviceName || "Social Media Service"}</strong>
+                <span>
+                  Quantity: {Number(order.quantity || 0).toLocaleString()}
+                </span>
+                <small>
+                  {order.createdAt
+                    ? new Date(order.createdAt).toLocaleString([], {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "Date unavailable"}
+                </small>
+              </div>
+            </div>
+
+            <div className="recent-order-meta">
+              <strong className="recent-order-price">
+                ₹{Number(order.price || 0).toFixed(2)}
+              </strong>
+
+              <span className={`order-status ${statusClass}`}>
+                <span className="status-dot" />
+                {status}
+              </span>
+            </div>
+          </article>
+        );
+      })}
+    </div>
   )}
 </div>
 
