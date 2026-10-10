@@ -230,43 +230,60 @@ app.post("/api/orders", authenticateToken, async (req, res) => {
     }
 
     // Package prices are defined on the server, never trusted from the browser.
-    const packageCatalogue = {
-      "6106": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - No Refill",
-        rate: 251.54,
-        min: 100,
-        max: 100000
-      },
-      "6107": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - 30 Days Refill",
-        rate: 276.01,
-        min: 100,
-        max: 100000
-      },
-      "6141": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - 90 Days Refill",
-        rate: 326.83,
-        min: 100,
-        max: 100000
-      },
-      "6142": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - 365 Days Refill",
-        rate: 348.94,
-        min: 100,
-        max: 100000
-      },
-      "6143": {
-        serviceId: 4,
-        name: "Instagram Indian Followers - Lifetime Refill",
-        rate: 374.53,
-        min: 100,
-        max: 100000
-      }
-    };
+   
+const packageCatalogue = {
+  // Instagram Likes
+  "101": { serviceId: 1, name: "Instagram Likes - Standard", rate: 14, min: 100, max: 100000 },
+  "102": { serviceId: 1, name: "Instagram Likes - Premium", rate: 21, min: 100, max: 100000 },
+  "103": { serviceId: 1, name: "Instagram Likes - Premium", rate: 28, min: 100, max: 100000 },
+
+  // Instagram Views
+  "201": { serviceId: 2, name: "Instagram Views - Standard", rate: 3, min: 100, max: 1000000 },
+  "202": { serviceId: 2, name: "Instagram Views - Premium", rate: 4.5, min: 100, max: 1000000 },
+  "203": { serviceId: 2, name: "Instagram Views - Premium", rate: 6, min: 100, max: 1000000 },
+
+  // Instagram Shares
+  "301": { serviceId: 3, name: "Instagram Shares - Standard", rate: 10, min: 100, max: 100000 },
+  "302": { serviceId: 3, name: "Instagram Shares - Premium", rate: 15, min: 100, max: 100000 },
+  "303": { serviceId: 3, name: "Instagram Shares - Premium", rate: 20, min: 100, max: 100000 },
+
+  // Instagram Followers
+  "6106": { serviceId: 4, name: "Instagram Indian Followers - Standard", rate: 251.54, min: 100, max: 100000 },
+  "6107": { serviceId: 4, name: "Instagram Indian Followers - Premium", rate: 276.01, min: 100, max: 100000 },
+  "6141": { serviceId: 4, name: "Instagram Indian Followers - 90 Day Refill", rate: 326.83, min: 100, max: 100000 },
+  "6142": { serviceId: 4, name: "Instagram Indian Followers - 365 Day Refill", rate: 348.94, min: 100, max: 100000 },
+  "6143": { serviceId: 4, name: "Instagram Indian Followers - Lifetime Refill", rate: 374.53, min: 100, max: 100000 },
+
+  // Instagram Comments
+  "501": { serviceId: 5, name: "Instagram Comments - Standard", rate: 50, min: 10, max: 10000 },
+  "502": { serviceId: 5, name: "Instagram Comments - Premium", rate: 75, min: 10, max: 10000 },
+  "503": { serviceId: 5, name: "Instagram Comments - Premium", rate: 100, min: 10, max: 10000 },
+
+  // YouTube Subscribers
+  "601": { serviceId: 6, name: "YouTube Subscribers - Standard", rate: 45, min: 100, max: 100000 },
+  "602": { serviceId: 6, name: "YouTube Subscribers - Premium", rate: 67.5, min: 100, max: 100000 },
+  "603": { serviceId: 6, name: "YouTube Subscribers - Premium", rate: 90, min: 100, max: 100000 },
+
+  // YouTube Likes
+  "701": { serviceId: 7, name: "YouTube Likes - Standard", rate: 20, min: 100, max: 100000 },
+  "702": { serviceId: 7, name: "YouTube Likes - Premium", rate: 30, min: 100, max: 100000 },
+  "703": { serviceId: 7, name: "YouTube Likes - Premium", rate: 40, min: 100, max: 100000 },
+
+  // YouTube Views
+  "801": { serviceId: 8, name: "YouTube Views - Standard", rate: 10, min: 100, max: 1000000 },
+  "802": { serviceId: 8, name: "YouTube Views - Premium", rate: 15, min: 100, max: 1000000 },
+  "803": { serviceId: 8, name: "YouTube Views - Premium", rate: 20, min: 100, max: 1000000 },
+
+  // YouTube Comments
+  "901": { serviceId: 9, name: "YouTube Comments - Standard", rate: 50, min: 10, max: 10000 },
+  "902": { serviceId: 9, name: "YouTube Comments - Premium", rate: 75, min: 10, max: 10000 },
+  "903": { serviceId: 9, name: "YouTube Comments - Premium", rate: 100, min: 10, max: 10000 },
+
+  // YouTube Watch Hours
+  "1001": { serviceId: 10, name: "YouTube Watch Hours - Standard", rate: 100, min: 10, max: 10000 },
+  "1002": { serviceId: 10, name: "YouTube Watch Hours - Premium", rate: 150, min: 10, max: 10000 },
+  "1003": { serviceId: 10, name: "YouTube Watch Hours - Premium", rate: 200, min: 10, max: 10000 }
+};
 
     const selectedPackage = packageCatalogue[String(packageId)];
 
