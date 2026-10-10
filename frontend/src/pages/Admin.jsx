@@ -5,24 +5,35 @@ import {
   Users,
   ShoppingCart,
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  DollarSign,
+  ArrowRight
 } from "lucide-react";
 import "./Admin.css";
 
 function Admin() {
   const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalUsers: 0,
-    totalOrders: 0
+    totalOrders: 0,
+    totalRevenue: 0
   });
+
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  // Keep your existing useEffect below this
+
 
 
 useEffect(() => {
-  const fetchStats = async () => {
+  const loadAdminData = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.error("No login token found. Please log in first.");
+      console.error("No login token found.");
+      setStatsLoading(false);
       return;
     }
 
@@ -39,16 +50,39 @@ useEffect(() => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || `Request failed: ${response.status}`);
+        throw new Error(data.message || "Unable to load statistics");
       }
 
       setStats(data);
     } catch (error) {
       console.error("Stats error:", error.message);
+    } finally {
+      setStatsLoading(false);
+    }
+
+    try {
+      const response = await fetch(
+        "https://socialboost-api-5ma2.onrender.com/api/orders",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to load orders");
+      }
+
+      setRecentOrders((data.orders || []).slice(0, 5));
+    } catch (error) {
+      console.error("Recent orders error:", error.message);
     }
   };
 
-  fetchStats();
+  loadAdminData();
 }, []);
 
 
@@ -122,16 +156,57 @@ useEffect(() => {
            <h3>{stats.totalOrders}</h3>
           </article>
 
-          <article className="admin-stat-card">
-            <LayoutDashboard size={22} />
-            <p>Revenue</p>
-            <h3>{stats.totalRevenue}</h3>
-          </article>
+<article className="admin-stat-card">
+  <DollarSign size={22} />
+  <p>Total Order Value</p>
+  <h3>
+    {statsLoading
+      ? "Loading..."
+      : `₹${Number(stats.totalRevenue || 0).toFixed(2)}`}
+  </h3>
+</article>
         </section>
 
-        <p className="admin-note">
-          Statistics will appear here after connecting the admin API.
-        </p>
+
+<section className="admin-recent-orders">
+  <div className="admin-recent-header">
+    <div>
+      <h2>Recent Orders</h2>
+      <p>Latest customer activity</p>
+    </div>
+
+    <button onClick={() => navigate("/admin/orders")}>
+      View All <ArrowRight size={16} />
+    </button>
+  </div>
+
+  {recentOrders.length === 0 ? (
+    <p className="admin-empty">No orders found.</p>
+  ) : (
+    recentOrders.map((order) => (
+      <article className="admin-order-row" key={order._id}>
+        <div>
+          <strong>{order.serviceName || "Social Media Service"}</strong>
+          <p>
+            Quantity: {Number(order.quantity || 0).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="admin-order-meta">
+          <strong>₹{Number(order.price || 0).toFixed(2)}</strong>
+          <span
+            className={`admin-order-status ${
+              String(order.status || "Pending").toLowerCase()
+            }`}
+          >
+            {order.status || "Pending"}
+          </span>
+        </div>
+      </article>
+    ))
+  )}
+</section>
+
       </main>
     </div>
   );
