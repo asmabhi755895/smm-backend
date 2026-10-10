@@ -447,10 +447,32 @@ app.post("/api/wallet/upi-request", authenticateToken, async (req, res) => {
   });
 }
 });
+function requireAdmin(req, res, next) {
+  User.findById(req.userId)
+    .select("role")
+    .then((user) => {
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({
+          message: "Admin access required"
+        });
+      }
 
+      next();
+    })
+    .catch((error) => {
+      console.error("Admin authorization error:", error.message);
+      res.status(500).json({
+        message: "Authorization failed"
+      });
+    });
+}
 
 // ADD THE ADMIN STATS CODE HERE
-app.get("/api/admin/stats", async (req, res) => {
+app.get(
+  "/api/admin/stats",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalOrders = await Order.countDocuments();

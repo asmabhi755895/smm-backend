@@ -90,7 +90,7 @@ function Admin() {
           <article className="admin-stat-card">
             <ShoppingCart size={22} />
             <p>Total Orders</p>
-           <h3>{stats.totalUsers}</h3>
+           <h3>{stats.totalOrders}</h3>
           </article>
 
           <article className="admin-stat-card">

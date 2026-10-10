@@ -26,7 +26,7 @@ function Orders() {
           }
         });
 
-        const data = await response.json();const text = await response.text();
+const text = await response.text();
 
 let data;
 try {
