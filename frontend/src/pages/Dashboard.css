@@ -652,3 +652,117 @@
     transition: none;
   }
 }
+
+/* Dashboard Hamburger Menu */
+.dashboard-menu-container {
+  position: relative;
+  z-index: 1001;
+}
+
+.dashboard-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e8defa;
+  border-radius: 13px;
+  background: #ffffff;
+  color: #6c45c7;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-menu-button:hover {
+  background: #f4efff;
+  transform: translateY(-1px);
+}
+
+.dashboard-menu-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  z-index: 1000;
+  cursor: default;
+}
+
+.dashboard-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 230px;
+  padding: 9px;
+  background: #ffffff;
+  border: 1px solid #eee7fb;
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(57, 35, 99, 0.16);
+  z-index: 1002;
+  animation: dashboard-menu-appear 0.18s ease-out;
+}
+
+.dashboard-dropdown > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #44345f;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dashboard-dropdown > button:hover {
+  background: #f4efff;
+  color: #7046ce;
+}
+
+.dashboard-dropdown > button svg {
+  flex-shrink: 0;
+}
+
+.dashboard-dropdown-divider {
+  height: 1px;
+  margin: 7px 4px;
+  background: #eee7f5;
+}
+
+.dashboard-dropdown > .dashboard-logout-button {
+  color: #d14343;
+}
+
+.dashboard-dropdown > .dashboard-logout-button:hover {
+  background: #fff0f0;
+  color: #b42323;
+}
+
+@keyframes dashboard-menu-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-menu-button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .dashboard-dropdown {
+    width: min(230px, calc(100vw - 32px));
+  }
+}

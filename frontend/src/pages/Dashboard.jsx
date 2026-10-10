@@ -6,11 +6,19 @@ import {
   Clock,
   CheckCircle,
   ArrowRight,
+  Menu,
+  X,
+  LayoutDashboard,
+  Headset,
+  UserRound,
+  LogOut,
+  Settings,
 } from "lucide-react";
+
 import "./Dashboard.css";
 function Dashboard() {
   const navigate = useNavigate();
-
+const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -100,12 +108,75 @@ useEffect(() => {
           SocialBoost
         </div>
 
-        <button
-          onClick={() => navigate("/profile")}
-          className="profile-button"
-        >
-          👤
+
+<div className="dashboard-menu-container">
+  <button
+    type="button"
+    className="dashboard-menu-button"
+    onClick={() => setMenuOpen(!menuOpen)}
+    aria-label={menuOpen ? "Close menu" : "Open menu"}
+    aria-expanded={menuOpen}
+  >
+    {menuOpen ? <X size={24} /> : <Menu size={24} />}
+  </button>
+
+  {menuOpen && (
+    <>
+      <button
+        type="button"
+        className="dashboard-menu-overlay"
+        aria-label="Close menu"
+        onClick={() => setMenuOpen(false)}
+      />
+
+      <div className="dashboard-dropdown">
+        <button onClick={() => { setMenuOpen(false); navigate("/dashboard"); }}>
+          <LayoutDashboard size={18} /> Dashboard
         </button>
+
+        <button onClick={() => { setMenuOpen(false); navigate("/services"); }}>
+          <Settings size={18} /> Services
+        </button>
+
+        <button onClick={() => { setMenuOpen(false); navigate("/order"); }}>
+          <ShoppingCart size={18} /> New Order
+        </button>
+
+        <button onClick={() => { setMenuOpen(false); navigate("/orders"); }}>
+          <Clock size={18} /> My Orders
+        </button>
+
+        <button onClick={() => { setMenuOpen(false); navigate("/wallet"); }}>
+          <Wallet size={18} /> Wallet
+        </button>
+
+        <button onClick={() => { setMenuOpen(false); navigate("/profile"); }}>
+          <UserRound size={18} /> Profile
+        </button>
+
+        <button onClick={() => { setMenuOpen(false); navigate("/support"); }}>
+          <Headset size={18} /> Support
+        </button>
+
+        <div className="dashboard-dropdown-divider" />
+
+        <button
+          className="dashboard-logout-button"
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            localStorage.removeItem("loggedIn");
+            setMenuOpen(false);
+            navigate("/login");
+          }}
+        >
+          <LogOut size={18} /> Logout
+        </button>
+      </div>
+    </>
+  )}
+</div>
+
 
       </header>
 
