@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const User = require("./models/User");
 const PaymentRequest = require("./models/PaymentRequest");
+const SupportTicket = require("./models/SupportTicket");
 
 const app = express();
 app.use(express.json());
@@ -395,6 +396,27 @@ app.get("/api/orders", authenticateToken, async (req, res) => {
   }
 });
 
+app.get(
+  "/api/admin/orders",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const orders = await Order.find()
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+
+      res.json({ orders });
+    } catch (error) {
+      console.error("Admin orders error:", error.message);
+      res.status(500).json({
+        message: "Unable to fetch admin orders"
+      });
+    }
+  }
+);
+
 app.post("/api/wallet/upi-request", authenticateToken, async (req, res) => {
   try {
     const amount = Number(req.body.amount);
@@ -473,20 +495,235 @@ app.get(
   authenticateToken,
   requireAdmin,
   async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const totalOrders = await Order.countDocuments();
 
-    res.json({
-      totalUsers,
-      totalOrders
+try {
+  const totalUsers = await User.countDocuments();
+  const totalOrders = await Order.countDocuments();
+
+  const orders = await Order.find().lean();
+
+  const totalRevenue = orders.reduce(
+    (sum, order) => sum + Number(order.price || 0),
+    0
+  );
+
+  res.json({
+    totalUsers,
+    totalOrders,
+    totalRevenue
+  });
+} catch (error) {
+  console.error("Admin stats error:", error);
+
+  res.status(500).json({
+    message: "Failed to load admin statistics"
+  });
+}
+
+});
+
+/* ========== SUPPORT TICKET ROUTES ========== */
+
+// Create a support ticket
+app.post("/api/support/tickets", authenticateToken, async (req, res) => {
+  try {
+    const subject = String(req.body.subject || "").trim();
+    const message = String(req.body.message || "").trim();
+
+    if (!subject || !message) {
+      return res.status(400).json({
+        message: "Subject and message are required."
+      });
+    }
+
+    if (subject.length > 100 || message.length > 2000) {
+      return res.status(400).json({
+        message: "Subject must be at most 100 characters and message at most 2000."
+      });
+    }
+
+    const ticket = await SupportTicket.create({
+      user: req.userId,
+      subject,
+      message
+    });
+
+    res.status(201).json({
+      message: "Support ticket created successfully.",
+      ticket
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to load statistics"
-    });
+    console.error("Create ticket error:", error.message);
+    res.status(500).json({ message: "Unable to create support ticket." });
   }
 });
+
+
+// Get the logged-in user's tickets
+app.get("/api/support/tickets", authenticateToken, async (req, res) => {
+  try {
+    const tickets = await SupportTicket.find({ user: req.userId })
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    res.json({ tickets });
+  } catch (error) {
+    console.error("Fetch tickets error:", error.message);
+    res.status(500).json({ message: "Unable to fetch support tickets." });
+  }
+});
+
+
+// Get one ticket (owner or admin only)
+app.get("/api/support/tickets/:id", authenticateToken, async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ticket ID." });
+    }
+
+    const ticket = await SupportTicket.findById(req.params.id).lean();
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found." });
+    }
+
+    const user = await User.findById(req.userId).select("role");
+
+    if (
+      String(ticket.user) !== String(req.userId) &&
+      (!user || user.role !== "admin")
+    ) {
+      return res.status(403).json({ message: "Access denied." });
+    }
+
+    res.json({ ticket });
+  } catch (error) {
+    console.error("Fetch ticket error:", error.message);
+    res.status(500).json({ message: "Unable to fetch ticket." });
+  }
+});
+
+
+// Add a reply to a ticket (owner or admin)
+app.post(
+  "/api/support/tickets/:id/replies",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({ message: "Invalid ticket ID." });
+      }
+
+      const message = String(req.body.message || "").trim();
+
+      if (!message || message.length > 2000) {
+        return res.status(400).json({
+          message: "Reply is required and must be at most 2000 characters."
+        });
+      }
+
+      const ticket = await SupportTicket.findById(req.params.id);
+
+      if (!ticket) {
+        return res.status(404).json({ message: "Ticket not found." });
+      }
+
+      const user = await User.findById(req.userId).select("role");
+      const isAdmin = user && user.role === "admin";
+      const isOwner = String(ticket.user) === String(req.userId);
+
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+
+      if (ticket.status === "Resolved" && !isAdmin) {
+        return res.status(400).json({
+          message: "This ticket is resolved. Please create a new ticket."
+        });
+      }
+
+      ticket.replies.push({
+        sender: req.userId,
+        senderRole: isAdmin ? "admin" : "user",
+        message
+      });
+
+      if (isAdmin && ticket.status === "Open") {
+        ticket.status = "In Progress";
+      }
+
+      await ticket.save();
+
+      res.json({
+        message: "Reply added successfully.",
+        ticket
+      });
+    } catch (error) {
+      console.error("Add ticket reply error:", error.message);
+      res.status(500).json({ message: "Unable to add reply." });
+    }
+  }
+);
+
+
+// Admin: list all support tickets
+app.get(
+  "/api/admin/support/tickets",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const tickets = await SupportTicket.find()
+        .populate("user", "name email")
+        .sort({ updatedAt: -1 })
+        .lean();
+
+      res.json({ tickets });
+    } catch (error) {
+      console.error("Admin ticket list error:", error.message);
+      res.status(500).json({ message: "Unable to fetch support tickets." });
+    }
+  }
+);
+
+
+// Admin: update ticket status
+app.patch(
+  "/api/admin/support/tickets/:id/status",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).json({ message: "Invalid ticket ID." });
+      }
+
+      const status = String(req.body.status || "");
+
+      if (!["Open", "In Progress", "Resolved"].includes(status)) {
+        return res.status(400).json({ message: "Invalid ticket status." });
+      }
+
+      const ticket = await SupportTicket.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true, runValidators: true }
+      );
+
+      if (!ticket) {
+        return res.status(404).json({ message: "Ticket not found." });
+      }
+
+      res.json({
+        message: "Ticket status updated successfully.",
+        ticket
+      });
+    } catch (error) {
+      console.error("Update ticket status error:", error.message);
+      res.status(500).json({ message: "Unable to update ticket status." });
+    }
+  }
+);
 
 const PORT = process.env.PORT || 5000;
 
