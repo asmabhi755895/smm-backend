@@ -7,7 +7,11 @@ import {
   Settings,
   ArrowLeft,
   DollarSign,
-  ArrowRight
+  ArrowRight,
+  Ticket,
+  RefreshCw,
+  Send,
+  MessageCircle
 } from "lucide-react";
 import "./Admin.css";
 
@@ -22,7 +26,13 @@ function Admin() {
 
   const [recentOrders, setRecentOrders] = useState([]);
   const [statsLoading, setStatsLoading] = useState(true);
-
+const [tickets, setTickets] = useState([]);
+const [selectedTicket, setSelectedTicket] = useState(null);
+const [ticketReply, setTicketReply] = useState("");
+const [ticketLoading, setTicketLoading] = useState(false);
+const [ticketMessage, setTicketMessage] = useState("");
+const [ticketError, setTicketError] = useState("");
+const [ticketSending, setTicketSending] = useState(false);
   // Keep your existing useEffect below this
 
 
@@ -62,7 +72,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        "https://socialboost-api-5ma2.onrender.com/api/orders",
+       "https://socialboost-api-5ma2.onrender.com/api/admin/orders",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -92,6 +102,129 @@ setRecentOrders(ordersList.slice(0, 5));
   loadAdminData();
 }, []);
 
+
+  // Load all support tickets
+  const loadTickets = async () => {
+    const token = localStorage.getItem("token");
+
+    setTicketLoading(true);
+    setTicketError("");
+    setTicketMessage("");
+
+    try {
+      const response = await fetch(
+        "https://socialboost-api-5ma2.onrender.com/api/admin/support/tickets",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to load tickets.");
+      }
+
+      setTickets(data.tickets || []);
+
+      if (selectedTicket) {
+        const updated = (data.tickets || []).find(
+          (ticket) => ticket._id === selectedTicket._id
+        );
+
+        if (updated) setSelectedTicket(updated);
+      }
+    } catch (error) {
+      setTicketError(error.message);
+    } finally {
+      setTicketLoading(false);
+    }
+  };
+
+  // Load tickets when the admin page opens
+  useEffect(() => {
+    loadTickets();
+  }, []);
+
+  // Send an admin reply
+  const sendTicketReply = async (event) => {
+    event.preventDefault();
+
+    if (!selectedTicket || !ticketReply.trim()) return;
+
+    const token = localStorage.getItem("token");
+
+    setTicketSending(true);
+    setTicketError("");
+    setTicketMessage("");
+
+    try {
+      const response = await fetch(
+        `https://socialboost-api-5ma2.onrender.com/api/support/tickets/${selectedTicket._id}/replies`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ message: ticketReply.trim() })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to send reply.");
+      }
+
+      setSelectedTicket(data.ticket);
+      setTicketReply("");
+      setTicketMessage("Reply sent successfully.");
+      await loadTickets();
+    } catch (error) {
+      setTicketError(error.message);
+    } finally {
+      setTicketSending(false);
+    }
+  };
+
+  // Update ticket status
+  const updateTicketStatus = async (status) => {
+    if (!selectedTicket) return;
+
+    const token = localStorage.getItem("token");
+
+    setTicketError("");
+    setTicketMessage("");
+
+    try {
+      const response = await fetch(
+        `https://socialboost-api-5ma2.onrender.com/api/admin/support/tickets/${selectedTicket._id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ status })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to update status.");
+      }
+
+      setSelectedTicket(data.ticket);
+      setTicketMessage("Ticket status updated.");
+      await loadTickets();
+    } catch (error) {
+      setTicketError(error.message);
+    }
+  };
 
   return (
     <div className="admin-page">
@@ -212,6 +345,170 @@ setRecentOrders(ordersList.slice(0, 5));
       </article>
     ))
   )}
+</section>
+
+<section className="admin-support-section">
+  <div className="admin-support-header">
+    <div>
+      <h2>
+        <Ticket size={21} />
+        Support Tickets
+      </h2>
+      <p>Manage customer questions and replies</p>
+    </div>
+
+    <button
+      type="button"
+      className="admin-support-refresh"
+      onClick={loadTickets}
+      disabled={ticketLoading}
+    >
+      <RefreshCw size={15} />
+      Refresh
+    </button>
+  </div>
+
+  {ticketMessage && (
+    <p className="admin-support-success">{ticketMessage}</p>
+  )}
+
+  {ticketError && (
+    <p className="admin-support-error">{ticketError}</p>
+  )}
+
+  <div className="admin-support-layout">
+    <div className="admin-support-list">
+      {ticketLoading && tickets.length === 0 ? (
+        <p className="admin-support-empty">Loading tickets...</p>
+      ) : tickets.length === 0 ? (
+        <p className="admin-support-empty">No support tickets found.</p>
+      ) : (
+        tickets.map((ticket) => (
+          <button
+            type="button"
+            key={ticket._id}
+            className={`admin-support-ticket ${
+              selectedTicket?._id === ticket._id ? "selected" : ""
+            }`}
+            onClick={() => {
+              setSelectedTicket(ticket);
+              setTicketMessage("");
+              setTicketError("");
+            }}
+          >
+            <div className="admin-support-ticket-top">
+              <strong>{ticket.subject}</strong>
+              <span
+                className={`admin-support-status ${
+                  String(ticket.status || "Open")
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")
+                }`}
+              >
+                {ticket.status || "Open"}
+              </span>
+            </div>
+
+            <p>
+              {ticket.user?.name || "Customer"}
+              {ticket.user?.email ? ` · ${ticket.user.email}` : ""}
+            </p>
+
+            <small>
+              {ticket.replies?.length || 0} replies
+            </small>
+          </button>
+        ))
+      )}
+    </div>
+
+    <div className="admin-support-conversation">
+      {!selectedTicket ? (
+        <div className="admin-support-empty">
+          <MessageCircle size={28} />
+          <p>Select a ticket to view its conversation.</p>
+        </div>
+      ) : (
+        <>
+          <div className="admin-support-conversation-header">
+            <div>
+              <h3>{selectedTicket.subject}</h3>
+              <p>
+                {selectedTicket.user?.name || "Customer"}
+                {selectedTicket.user?.email
+                  ? ` · ${selectedTicket.user.email}`
+                  : ""}
+              </p>
+            </div>
+
+            <select
+              aria-label="Ticket status"
+              value={selectedTicket.status || "Open"}
+              onChange={(event) =>
+                updateTicketStatus(event.target.value)
+              }
+            >
+              <option value="Open">Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+
+          <div className="admin-support-messages">
+            <article className="admin-support-message customer">
+              <strong>Original message</strong>
+              <p>{selectedTicket.message}</p>
+              <small>
+                {new Date(selectedTicket.createdAt).toLocaleString()}
+              </small>
+            </article>
+
+            {(selectedTicket.replies || []).map((item, index) => (
+              <article
+                key={item._id || `${item.createdAt}-${index}`}
+                className={`admin-support-message ${
+                  item.senderRole === "admin" ? "admin" : "customer"
+                }`}
+              >
+                <strong>
+                  {item.senderRole === "admin"
+                    ? "Support team"
+                    : "Customer"}
+                </strong>
+                <p>{item.message}</p>
+                <small>
+                  {new Date(item.createdAt).toLocaleString()}
+                </small>
+              </article>
+            ))}
+          </div>
+
+          {selectedTicket.status === "Resolved" ? (
+            <p className="admin-support-empty">
+              This ticket is resolved. Change its status to reopen the
+              conversation.
+            </p>
+          ) : (
+            <form className="admin-support-reply" onSubmit={sendTicketReply}>
+              <textarea
+                value={ticketReply}
+                onChange={(event) => setTicketReply(event.target.value)}
+                placeholder="Write a reply to the customer..."
+                rows={3}
+                maxLength={2000}
+                required
+              />
+
+              <button type="submit" disabled={ticketSending}>
+                <Send size={15} />
+                {ticketSending ? "Sending..." : "Send Reply"}
+              </button>
+            </form>
+          )}
+        </>
+      )}
+    </div>
+  </div>
 </section>
 
       </main>

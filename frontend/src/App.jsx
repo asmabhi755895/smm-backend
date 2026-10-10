@@ -9,6 +9,7 @@ import Wallet from "./pages/Wallet";
 import Admin from "./pages/Admin";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import Support from "./pages/Support";
 
 import { FaInstagram, FaYoutube } from "react-icons/fa";
 import {
@@ -579,6 +580,7 @@ function App() {
   <Route path="/admin" element={<Admin />} />
   <Route path="/orders" element={<Orders />} />
   <Route path="/profile" element={<Profile />} />
+  <Route path="/support" element={<Support />} />
 </Routes>
     </BrowserRouter>
   );

@@ -1,145 +1,161 @@
+
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaInstagram, FaYoutube } from "react-icons/fa";
-import { ArrowRight } from "lucide-react";
+import {
+  FaInstagram,
+  FaYoutube,
+  FaFacebookF,
+  FaTelegramPlane,
+} from "react-icons/fa";
+import { ArrowRight, Search } from "lucide-react";
 import { services } from "../data/services";
 import "./Services.css";
 
+const platforms = [
+  { name: "All", icon: null },
+  { name: "Instagram", icon: FaInstagram },
+  { name: "YouTube", icon: FaYoutube },
+  { name: "Facebook", icon: FaFacebookF },
+  { name: "Telegram", icon: FaTelegramPlane },
+];
+
 function Services() {
   const navigate = useNavigate();
+  const [activePlatform, setActivePlatform] = useState("All");
+  const [search, setSearch] = useState("");
 
-  const instagramServices = services.filter(
-    (service) => service.platform === "Instagram"
-  );
+  const filteredServices = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-  const youtubeServices = services.filter(
-    (service) => service.platform === "YouTube"
-  );
+    return services.filter((service) => {
+      const matchesPlatform =
+        activePlatform === "All" ||
+        service.platform?.toLowerCase() ===
+          activePlatform.toLowerCase();
 
-  const ServiceCard = ({ service }) => (
-    <div className="service-item">
+      const matchesSearch =
+        !query ||
+        [service.name, service.description, service.platform]
+          .some((value) =>
+            String(value || "").toLowerCase().includes(query)
+          );
 
-      <div className="service-item-info">
-
-        <h3>{service.name}</h3>
-
-        <p>
-          {service.description}
-        </p>
-
-      </div>
-
-      <div className="service-item-right">
-
-        <div className="service-price">
-          <strong>
-            ₹{service.pricePer1000}
-          </strong>
-
-          <span>
-            / 1000
-          </span>
-        </div>
-
-        <button
-          onClick={() =>
-           navigate("/order")
-          }
-        >
-          Order
-          <ArrowRight size={15} />
-        </button>
-
-      </div>
-
-    </div>
-  );
+      return matchesPlatform && matchesSearch;
+    });
+  }, [activePlatform, search]);
 
   return (
     <div className="services-page">
-
-      <div className="services-header">
-
+      <header className="services-header">
         <span>OUR SERVICES</span>
-
         <h1>
-          SMM
+          Find your
           <br />
           <strong>Services</strong>
         </h1>
-
         <p>
-          Choose a service and place your order
-          instantly.
+          Affordable social media services, all in one place.
         </p>
+      </header>
 
+      <div className="services-search">
+        <Search size={19} />
+        <input
+          type="search"
+          placeholder="Search services..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search services"
+        />
       </div>
 
+      <div className="platform-filters" aria-label="Filter by platform">
+        {platforms.map(({ name, icon: Icon }) => (
+          <button
+            key={name}
+            type="button"
+            className={
+              activePlatform === name ? "active" : ""
+            }
+            onClick={() => setActivePlatform(name)}
+            aria-pressed={activePlatform === name}
+          >
+            {Icon && <Icon size={16} />}
+            {name}
+          </button>
+        ))}
+      </div>
 
-      {/* INSTAGRAM */}
-
-      <section className="platform-section">
-
-        <div className="platform-title">
-
-          <div className="platform-icon instagram-icon">
-            <FaInstagram size={27} />
-          </div>
-
-          <div>
-            <h2>Instagram</h2>
-            <p>
-              Instagram services
-            </p>
-          </div>
-
+      <div className="services-results">
+        <div className="services-results-heading">
+          <h2>
+            {activePlatform === "All"
+              ? "Available Services"
+              : `${activePlatform} Services`}
+          </h2>
+          <span>{filteredServices.length} services</span>
         </div>
 
-        <div className="service-list">
+        {filteredServices.length > 0 ? (
+          <div className="service-list">
+            {filteredServices.map((service) => {
+              const platform = platforms.find(
+                (item) =>
+                  item.name.toLowerCase() ===
+                  service.platform?.toLowerCase()
+              );
+              const PlatformIcon = platform?.icon;
 
-          {instagramServices.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-            />
-          ))}
+              return (
+                <article
+                  className="service-item"
+                  key={service.id}
+                >
+                  <div className="service-item-info">
+                    <div className="service-platform-label">
+                      {PlatformIcon && <PlatformIcon size={15} />}
+                      <span>{service.platform}</span>
+                    </div>
 
-        </div>
+                    <h3>{service.name}</h3>
+                    <p>{service.description}</p>
+                  </div>
 
-      </section>
+                  <div className="service-item-right">
+                    <div className="service-price">
+                      <strong>₹{service.pricePer1000}</strong>
+                      <span>/ 1,000</span>
+                    </div>
 
-
-      {/* YOUTUBE */}
-
-      <section className="platform-section">
-
-        <div className="platform-title">
-
-          <div className="platform-icon youtube-icon">
-            <FaYoutube size={27} />
+                    <button
+                      type="button"
+                      onClick={() => navigate("/order")}
+                    >
+                      Order
+                      <ArrowRight size={15} />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
           </div>
-
-          <div>
-            <h2>YouTube</h2>
-            <p>
-              YouTube services
-            </p>
+        ) : (
+          <div className="services-empty">
+            <Search size={28} />
+            <h3>No services found</h3>
+            <p>Try another search or select a different platform.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setActivePlatform("All");
+              }}
+            >
+              Clear filters
+            </button>
           </div>
-
-        </div>
-
-        <div className="service-list">
-
-          {youtubeServices.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-            />
-          ))}
-
-        </div>
-
-      </section>
-
+        )}
+      </div>
     </div>
   );
 }

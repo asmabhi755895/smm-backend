@@ -1,0 +1,378 @@
+
+.support-page {
+  min-height: 100vh;
+  padding: 32px 16px 100px;
+  background: #f7f8fc;
+  color: #211a35;
+  box-sizing: border-box;
+}
+
+.support-container {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.support-header {
+  margin-bottom: 28px;
+}
+
+.support-eyebrow {
+  margin: 0 0 10px;
+  color: #7653e8;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+}
+
+.support-header h1 {
+  margin: 0;
+  font-size: clamp(27px, 5vw, 36px);
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.support-subtitle,
+.support-section-description {
+  color: #77718a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.support-contact-card,
+.support-section {
+  background: #ffffff;
+  border: 1px solid #ece8f8;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 20px rgba(53, 35, 100, 0.035);
+}
+
+.support-contact-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.support-icon {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.whatsapp-icon {
+  background: #e3f8e9;
+  color: #16803d;
+}
+
+.support-contact-info {
+  flex: 1;
+}
+
+.support-contact-info h2,
+.support-section h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 750;
+}
+
+.support-contact-info p {
+  margin: 7px 0 15px;
+  color: #77718a;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.support-whatsapp-button,
+.support-submit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 43px;
+  padding: 11px 17px;
+  border: none;
+  border-radius: 11px;
+  background: #7653e8;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.support-whatsapp-button {
+  background: #16803d;
+}
+
+.support-whatsapp-button:hover {
+  background: #116b32;
+}
+
+.support-submit-button:hover {
+  background: #6240d0;
+}
+
+.support-submit-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.support-section > h2 {
+  margin-bottom: 6px;
+}
+
+.support-section-description {
+  margin: 5px 0 18px;
+}
+
+.support-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.support-form label {
+  margin-top: 8px;
+  color: #39314f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.support-form input,
+.support-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #e5e0f1;
+  border-radius: 11px;
+  background: #fcfbff;
+  color: #211a35;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.support-form input:focus,
+.support-form textarea:focus {
+  border-color: #9377ed;
+  box-shadow: 0 0 0 3px rgba(118, 83, 232, 0.1);
+}
+
+.support-form textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.support-form .support-submit-button {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.support-ticket-heading,
+.support-ticket-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.support-refresh-button {
+  padding: 9px 13px;
+  border: 1px solid #e7e0fb;
+  border-radius: 10px;
+  background: #f7f4ff;
+  color: #7653e8;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.support-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.support-ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.support-ticket-item {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #ece8f8;
+  border-radius: 13px;
+  background: #ffffff;
+  color: #211a35;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.support-ticket-item:hover,
+.support-ticket-item.selected {
+  border-color: #a18aed;
+  background: #fcfaff;
+}
+
+.support-ticket-item-top strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.support-ticket-item > p {
+  margin: 10px 0;
+  color: #77718a;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.support-ticket-item small,
+.support-message small {
+  color: #89839b;
+  font-size: 11px;
+}
+
+.support-status {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #f0eaff;
+  color: #7653e8;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.support-status.in-progress {
+  background: #fff2d8;
+  color: #99620b;
+}
+
+.support-status.resolved {
+  background: #e2f7e9;
+  color: #16803d;
+}
+
+.support-status.open {
+  background: #f0eaff;
+  color: #7653e8;
+}
+
+.support-empty {
+  padding: 20px 0;
+  color: #89839b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.support-conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.support-message {
+  padding: 15px;
+  border: 1px solid #ece8f8;
+  border-radius: 13px;
+  background: #fcfbff;
+}
+
+.support-message strong {
+  font-size: 12px;
+  color: #7653e8;
+}
+
+.support-message p {
+  margin: 9px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.support-admin-message {
+  border-color: #d8f0df;
+  background: #f4fcf6;
+}
+
+.support-admin-message strong {
+  color: #16803d;
+}
+
+.support-user-message {
+  background: #f7f4ff;
+}
+
+.support-notice,
+.support-error {
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  border-radius: 11px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.support-notice {
+  border: 1px solid #ccebd5;
+  background: #effaf2;
+  color: #176b35;
+}
+
+.support-error {
+  border: 1px solid #f2d0d0;
+  background: #fff3f3;
+  color: #b42318;
+}
+
+@media (max-width: 600px) {
+  .support-page {
+    padding: 24px 12px 90px;
+  }
+
+  .support-contact-card,
+  .support-section {
+    padding: 17px;
+    border-radius: 15px;
+  }
+
+  .support-contact-card {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .support-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    font-size: 21px;
+  }
+
+  .support-contact-info h2,
+  .support-section h2 {
+    font-size: 17px;
+  }
+
+  .support-ticket-heading {
+    align-items: flex-start;
+  }
+
+  .support-ticket-item-top {
+    align-items: flex-start;
+  }
+
+  .support-ticket-item-top strong {
+    flex: 1;
+  }
+}
