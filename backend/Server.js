@@ -196,6 +196,14 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
 
 app.post("/api/orders", authenticateToken, async (req, res) => {
   try {
+    const platformSettings = await PlatformSettings.findOne();
+
+    if (platformSettings && platformSettings.ordersEnabled === false) {
+      return res.status(503).json({
+        message: "New orders are temporarily disabled. Please try again later.",
+      });
+    }
+
     const { serviceId, packageId, link, quantity } = req.body;
 
     const validServiceId = Number(serviceId);
