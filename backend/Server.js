@@ -479,6 +479,25 @@ app.post("/api/wallet/upi-request", authenticateToken, async (req, res) => {
   });
 }
 });
+
+app.get("/api/wallet/transactions", authenticateToken, async (req, res) => {
+  try {
+    const transactions = await WalletTransaction.find({
+      user: req.userId
+    })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean();
+
+    res.json({ transactions });
+  } catch (error) {
+    console.error("Wallet transaction history error:", error.message);
+    res.status(500).json({
+      message: "Unable to load transaction history."
+    });
+  }
+});
+
 function requireAdmin(req, res, next) {
   User.findById(req.userId)
     .select("role")
