@@ -10,6 +10,10 @@ const PaymentRequest = require("./models/PaymentRequest");
 const SupportTicket = require("./models/SupportTicket");
 const WalletTransaction = require("./models/WalletTransaction");
 const PlatformSettings = require("./models/PlatformSettings");
+const { OAuth2Client } = require("google-auth-library");
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 const app = express();
 app.use(express.json());
 
@@ -165,6 +169,86 @@ res.json({
 });
 // LOGIN API ends above this line
 
+ // GOOGLE LOGIN
+app.post("/api/auth/google", async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        message: "Google credential is required."
+      });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.sub || !payload.email || !payload.email_verified) {
+      return res.status(401).json({
+        message: "Google account could not be verified."
+      });
+    }
+
+    const googleId = payload.sub;
+    const email = payload.email.toLowerCase();
+    const name = payload.name || email.split("@")[0];
+
+    let user = await User.findOne({
+      $or: [{ googleId }, { email }]
+    });
+
+    if (user) {
+      if (user.googleId && user.googleId !== googleId) {
+        return res.status(409).json({
+          message: "This email is linked to a different Google account."
+        });
+      }
+
+      // Don't silently link an existing password account.
+      if (!user.googleId) {
+        return res.status(409).json({
+          message: "This email already has an account. Please log in with your password first."
+        });
+      }
+    } else {
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        balance: 0,
+        role: "user"
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    return res.json({
+      message: "Google login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        balance: user.balance
+      }
+    });
+  } catch (error) {
+    console.error("Google login error:", error.message);
+
+    return res.status(401).json({
+      message: "Google sign-in failed. Please try again."
+    });
+  }
+});
+
 
 // PASTE YOUR /api/auth/me ROUTE HERE
 app.get("/api/auth/me", authenticateToken, async (req, res) => {
@@ -196,13 +280,13 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
 
 app.post("/api/orders", authenticateToken, async (req, res) => {
   try {
-    const platformSettings = await PlatformSettings.findOne();
+ const platformSettings = await PlatformSettings.findOne();
 
-    if (platformSettings && platformSettings.ordersEnabled === false) {
-      return res.status(503).json({
-        message: "New orders are temporarily disabled. Please try again later.",
-      });
-    }
+if (platformSettings && platformSettings.ordersEnabled === false) {
+  return res.status(503).json({
+    message: "New orders are temporarily disabled. Please try again later.",
+  });
+}
 
     const { serviceId, packageId, link, quantity } = req.body;
 

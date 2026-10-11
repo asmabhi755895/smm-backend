@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -18,18 +19,27 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true
+      required: function () {
+        return !this.googleId;
+      }
+    },
+
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true
     },
 
     balance: {
       type: Number,
       default: 0
     },
+
     role: {
-  type: String,
-  enum: ["user", "admin"],
-  default: "user"
-},
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    }
   },
   {
     timestamps: true
