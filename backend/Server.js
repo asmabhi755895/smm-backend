@@ -304,81 +304,111 @@ if (platformSettings && platformSettings.ordersEnabled === false) {
       });
     }
 
-    const serviceNames = {
-      1: "Instagram Likes",
-      2: "Instagram Views",
-      3: "Instagram Shares",
-      4: "Instagram Followers",
-      5: "Instagram Comments",
-      6: "YouTube Subscribers",
-      7: "YouTube Likes",
-      8: "YouTube Views",
-      9: "YouTube Comments",
-      10: "YouTube Watch Hours"
-    };
+// Service catalogue — keep IDs and rates synchronized with
+// frontend/src/data/services.js
+const serviceCatalogue = {
+  1: { platform: "Instagram", category: "Likes", rate: 14, min: 100, max: 100000 },
+  2: { platform: "Instagram", category: "Views", rate: 3, min: 100, max: 1000000 },
+  3: { platform: "Instagram", category: "Shares", rate: 10, min: 100, max: 100000 },
+  4: { platform: "Instagram", category: "Followers", rate: 30, min: 100, max: 100000 },
+  5: { platform: "Instagram", category: "Comments", rate: 50, min: 10, max: 10000 },
+  6: { platform: "YouTube", category: "Subscribers", rate: 45, min: 100, max: 100000 },
+  7: { platform: "YouTube", category: "Likes", rate: 20, min: 100, max: 100000 },
+  8: { platform: "YouTube", category: "Views", rate: 10, min: 100, max: 1000000 },
+  9: { platform: "YouTube", category: "Comments", rate: 50, min: 10, max: 10000 },
+  10: { platform: "YouTube", category: "Watch Hours", rate: 100, min: 10, max: 10000 },
 
-    const serviceName = serviceNames[validServiceId];
+  11: { platform: "Instagram", category: "Story Views", rate: 3, min: 100, max: 100000 },
+  12: { platform: "Instagram", category: "Profile Visits", rate: 3, min: 100, max: 100000 },
 
-    if (!serviceName) {
-      return res.status(400).json({ message: "Invalid service" });
-    }
+  13: { platform: "Facebook", category: "Page Followers", rate: 30, min: 100, max: 100000 },
+  14: { platform: "Facebook", category: "Profile Followers", rate: 30, min: 100, max: 100000 },
+  15: { platform: "Facebook", category: "Likes", rate: 14, min: 100, max: 100000 },
+  16: { platform: "Facebook", category: "Views", rate: 3, min: 100, max: 1000000 },
+  17: { platform: "Facebook", category: "Comments", rate: 50, min: 10, max: 10000 },
+  18: { platform: "Facebook", category: "Shares", rate: 10, min: 100, max: 100000 },
+  19: { platform: "Facebook", category: "Story Views", rate: 3, min: 100, max: 100000 },
 
-    // Package prices are defined on the server, never trusted from the browser.
-   
-const packageCatalogue = {
-  // Instagram Likes
-  "101": { serviceId: 1, name: "Instagram Likes - Standard", rate: 14, min: 100, max: 100000 },
-  "102": { serviceId: 1, name: "Instagram Likes - Premium", rate: 21, min: 100, max: 100000 },
-  "103": { serviceId: 1, name: "Instagram Likes - Premium", rate: 28, min: 100, max: 100000 },
-
-  // Instagram Views
-  "201": { serviceId: 2, name: "Instagram Views - Standard", rate: 3, min: 100, max: 1000000 },
-  "202": { serviceId: 2, name: "Instagram Views - Premium", rate: 4.5, min: 100, max: 1000000 },
-  "203": { serviceId: 2, name: "Instagram Views - Premium", rate: 6, min: 100, max: 1000000 },
-
-  // Instagram Shares
-  "301": { serviceId: 3, name: "Instagram Shares - Standard", rate: 10, min: 100, max: 100000 },
-  "302": { serviceId: 3, name: "Instagram Shares - Premium", rate: 15, min: 100, max: 100000 },
-  "303": { serviceId: 3, name: "Instagram Shares - Premium", rate: 20, min: 100, max: 100000 },
-
-  // Instagram Followers
-  "6106": { serviceId: 4, name: "Instagram Indian Followers - Standard", rate: 251.54, min: 100, max: 100000 },
-  "6107": { serviceId: 4, name: "Instagram Indian Followers - Premium", rate: 276.01, min: 100, max: 100000 },
-  "6141": { serviceId: 4, name: "Instagram Indian Followers - 90 Day Refill", rate: 326.83, min: 100, max: 100000 },
-  "6142": { serviceId: 4, name: "Instagram Indian Followers - 365 Day Refill", rate: 348.94, min: 100, max: 100000 },
-  "6143": { serviceId: 4, name: "Instagram Indian Followers - Lifetime Refill", rate: 374.53, min: 100, max: 100000 },
-
-  // Instagram Comments
-  "501": { serviceId: 5, name: "Instagram Comments - Standard", rate: 50, min: 10, max: 10000 },
-  "502": { serviceId: 5, name: "Instagram Comments - Premium", rate: 75, min: 10, max: 10000 },
-  "503": { serviceId: 5, name: "Instagram Comments - Premium", rate: 100, min: 10, max: 10000 },
-
-  // YouTube Subscribers
-  "601": { serviceId: 6, name: "YouTube Subscribers - Standard", rate: 45, min: 100, max: 100000 },
-  "602": { serviceId: 6, name: "YouTube Subscribers - Premium", rate: 67.5, min: 100, max: 100000 },
-  "603": { serviceId: 6, name: "YouTube Subscribers - Premium", rate: 90, min: 100, max: 100000 },
-
-  // YouTube Likes
-  "701": { serviceId: 7, name: "YouTube Likes - Standard", rate: 20, min: 100, max: 100000 },
-  "702": { serviceId: 7, name: "YouTube Likes - Premium", rate: 30, min: 100, max: 100000 },
-  "703": { serviceId: 7, name: "YouTube Likes - Premium", rate: 40, min: 100, max: 100000 },
-
-  // YouTube Views
-  "801": { serviceId: 8, name: "YouTube Views - Standard", rate: 10, min: 100, max: 1000000 },
-  "802": { serviceId: 8, name: "YouTube Views - Premium", rate: 15, min: 100, max: 1000000 },
-  "803": { serviceId: 8, name: "YouTube Views - Premium", rate: 20, min: 100, max: 1000000 },
-
-  // YouTube Comments
-  "901": { serviceId: 9, name: "YouTube Comments - Standard", rate: 50, min: 10, max: 10000 },
-  "902": { serviceId: 9, name: "YouTube Comments - Premium", rate: 75, min: 10, max: 10000 },
-  "903": { serviceId: 9, name: "YouTube Comments - Premium", rate: 100, min: 10, max: 10000 },
-
-  // YouTube Watch Hours
-  "1001": { serviceId: 10, name: "YouTube Watch Hours - Standard", rate: 100, min: 10, max: 10000 },
-  "1002": { serviceId: 10, name: "YouTube Watch Hours - Premium", rate: 150, min: 10, max: 10000 },
-  "1003": { serviceId: 10, name: "YouTube Watch Hours - Premium", rate: 200, min: 10, max: 10000 }
+  20: { platform: "Telegram", category: "Channel Members", rate: 30, min: 100, max: 100000 },
+  21: { platform: "Telegram", category: "Group Members", rate: 30, min: 100, max: 100000 },
+  22: { platform: "Telegram", category: "Post Views", rate: 3, min: 100, max: 1000000 },
+  23: { platform: "Telegram", category: "Post Reactions", rate: 10, min: 100, max: 100000 },
+  24: { platform: "Telegram", category: "Post Shares", rate: 10, min: 100, max: 100000 },
+  25: { platform: "Telegram", category: "Comments", rate: 50, min: 10, max: 10000 },
 };
 
+const service = serviceCatalogue[validServiceId];
+
+if (!service) {
+  return res.status(400).json({ message: "Invalid service" });
+}
+
+const serviceName = `${service.platform} ${service.category}`;
+
+const packageOptions = [
+  {
+    suffix: "01",
+    quality: "HQ",
+    delivery: "Gradual Delivery",
+    refill: "No Refill",
+    label: "HQ",
+    multiplier: 1,
+  },
+  {
+    suffix: "02",
+    quality: "Premium",
+    delivery: "Fast Delivery",
+    refill: "30 Days Refill",
+    label: "30 Days Refill",
+    multiplier: 1.5,
+  },
+  {
+    suffix: "03",
+    quality: "Premium",
+    delivery: "Fast Delivery",
+    refill: "90 Days Refill",
+    label: "90 Days Refill",
+    multiplier: 2,
+  },
+];
+
+function getPackageName(serviceId, category, option) {
+  if (serviceId === 4) {
+    if (option.suffix === "01") {
+      return "HQ Indian Followers - Standard";
+    }
+
+    if (option.suffix === "02") {
+      return "HQ Indian Followers - 30 Days Refill";
+    }
+
+    return "HQ Indian Followers - 90 Days Refill";
+  }
+
+  if (serviceId === 6 && option.suffix === "01") {
+    return "HQ YouTube Subscribers";
+  }
+
+  return `${category} - ${option.label}`;
+}
+
+const packageCatalogue = {};
+
+for (const [id, item] of Object.entries(serviceCatalogue)) {
+  for (const option of packageOptions) {
+    const serviceId = Number(id);
+    const packageId = `${id}${option.suffix}`;
+
+    packageCatalogue[packageId] = {
+      serviceId,
+      name: getPackageName(serviceId, item.category, option),
+      rate:
+        Math.round(item.rate * option.multiplier * 100) / 100,
+      min: item.min,
+      max: item.max,
+    };
+  }
+}
     const selectedPackage = packageCatalogue[String(packageId)];
 
     if (
