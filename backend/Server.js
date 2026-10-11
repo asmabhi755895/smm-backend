@@ -9,6 +9,7 @@ const User = require("./models/User");
 const PaymentRequest = require("./models/PaymentRequest");
 const SupportTicket = require("./models/SupportTicket");
 const WalletTransaction = require("./models/WalletTransaction");
+const PlatformSettings = require("./models/PlatformSettings");
 const app = express();
 app.use(express.json());
 
@@ -798,6 +799,121 @@ app.patch(
     }
   }
 );
+
+/* ========== ADMIN PLATFORM SETTINGS ========== */
+
+// Get platform settings (admin only)
+app.get(
+  "/api/admin/settings",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      let settings = await PlatformSettings.findOne();
+
+      if (!settings) {
+        settings = await PlatformSettings.create({
+          platformName: "SocialBoost",
+          supportEmail: "",
+          ordersEnabled: true,
+          maintenanceMode: false,
+        });
+      }
+
+      res.json({ settings });
+    } catch (error) {
+      console.error("Load platform settings error:", error.message);
+      res.status(500).json({
+        message: "Unable to load platform settings.",
+      });
+    }
+  }
+);
+
+// Update platform settings (admin only)
+app.patch(
+  "/api/admin/settings",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const {
+        platformName,
+        supportEmail,
+        ordersEnabled,
+        maintenanceMode,
+      } = req.body;
+
+      if (
+        typeof platformName !== "string" ||
+        !platformName.trim() ||
+        platformName.trim().length > 80
+      ) {
+        return res.status(400).json({
+          message: "Platform name must be between 1 and 80 characters.",
+        });
+      }
+
+      if (
+        typeof supportEmail !== "string" ||
+        supportEmail.length > 254
+      ) {
+        return res.status(400).json({
+          message: "Please enter a valid support email.",
+        });
+      }
+
+      if (
+        typeof ordersEnabled !== "boolean" ||
+        typeof maintenanceMode !== "boolean"
+      ) {
+        return res.status(400).json({
+          message: "Invalid order or maintenance setting.",
+        });
+      }
+
+      const email = supportEmail.trim();
+
+      if (
+        email &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      ) {
+        return res.status(400).json({
+          message: "Please enter a valid support email.",
+        });
+      }
+
+      const settings = await PlatformSettings.findOneAndUpdate(
+        {},
+        {
+          $set: {
+            platformName: platformName.trim(),
+            supportEmail: email,
+            ordersEnabled,
+            maintenanceMode,
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+          runValidators: true,
+          setDefaultsOnInsert: true,
+        }
+      );
+
+      res.json({
+        message: "Platform settings saved successfully.",
+        settings,
+      });
+    } catch (error) {
+      console.error("Save platform settings error:", error.message);
+      res.status(500).json({
+        message: "Unable to save platform settings.",
+      });
+    }
+  }
+);
+
 /* ========== SUPPORT TICKET ROUTES ========== */
 
 // Create a support ticket
