@@ -551,6 +551,28 @@ try {
 
 });
 
+app.get(
+  "/api/admin/users",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const users = await User.find()
+        .select("-password -__v")
+        .sort({ createdAt: -1 })
+        .lean();
+
+      res.json({ users });
+    } catch (error) {
+      console.error("Admin users error:", error);
+
+      res.status(500).json({
+        message: "Failed to load users."
+      });
+    }
+  }
+);
+
 /* ========== SUPPORT TICKET ROUTES ========== */
 
 // Create a support ticket
