@@ -11,7 +11,14 @@ const walletTransactionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["DEPOSIT", "ORDER_PAYMENT", "REFUND", "ADJUSTMENT"],
+      enum: [
+  "DEPOSIT",
+  "ORDER_PAYMENT",
+  "REFUND",
+  "ADJUSTMENT",
+  "ADMIN_CREDIT",
+  "ADMIN_DEBIT",
+],
       required: true,
     },
     amount: {

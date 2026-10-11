@@ -678,7 +678,126 @@ app.patch(
     }
   }
 );
+// Admin: adjust a user's wallet balance
+// Admin: adjust a user's wallet balance safely
+app.patch(
+  "/api/admin/users/:id/balance",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    let session;
 
+    try {
+      const { id } = req.params;
+      const amount = Number(req.body.amount);
+      const reason = String(req.body.reason || "").trim();
+      const type = String(req.body.type || "");
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({
+          message: "Invalid user ID.",
+        });
+      }
+
+      if (
+        !Number.isFinite(amount) ||
+        amount <= 0 ||
+        Math.round(amount * 100) !== amount * 100
+      ) {
+        return res.status(400).json({
+          message: "Enter a valid amount with at most 2 decimal places.",
+        });
+      }
+
+      if (!["ADD", "DEDUCT"].includes(type)) {
+        return res.status(400).json({
+          message: "Choose Add or Deduct.",
+        });
+      }
+
+      if (!reason || reason.length > 200) {
+        return res.status(400).json({
+          message: "Enter a reason of at most 200 characters.",
+        });
+      }
+
+      session = await mongoose.startSession();
+
+      let updatedUser;
+
+      await session.withTransaction(async () => {
+        const change = type === "ADD" ? amount : -amount;
+
+        const filter =
+          type === "ADD"
+            ? { _id: id }
+            : { _id: id, balance: { $gte: amount } };
+
+        const user = await User.findOneAndUpdate(
+          filter,
+          { $inc: { balance: change } },
+          {
+            new: true,
+            runValidators: true,
+            session,
+          }
+        ).select("-password -__v");
+
+        if (!user) {
+          const exists = await User.exists({ _id: id }).session(session);
+
+          const error = new Error(
+            exists
+              ? "Insufficient wallet balance for this deduction."
+              : "User not found."
+          );
+
+          error.status = exists ? 400 : 404;
+          throw error;
+        }
+
+        await WalletTransaction.create(
+          [
+            {
+              user: user._id,
+              type: type === "ADD" ? "ADMIN_CREDIT" : "ADMIN_DEBIT",
+              amount,
+              description: `Admin adjustment: ${reason}`,
+              status: "COMPLETED",
+              reference: `ADMIN-${new mongoose.Types.ObjectId()}`,
+              balanceAfter: user.balance,
+            },
+          ],
+          { session }
+        );
+
+        updatedUser = user;
+      });
+
+      return res.json({
+        message: "Wallet balance updated successfully.",
+        user: updatedUser,
+      });
+    } catch (error) {
+      console.error("Admin balance adjustment error:", error);
+
+      if (error.status) {
+        return res.status(error.status).json({
+          message: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        message:
+          "Unable to update balance. No changes should be committed if the transaction failed.",
+      });
+    } finally {
+      if (session) {
+        await session.endSession();
+      }
+    }
+  }
+);
 /* ========== SUPPORT TICKET ROUTES ========== */
 
 // Create a support ticket
