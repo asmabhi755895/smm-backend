@@ -427,6 +427,60 @@ app.get(
   }
 );
 
+app.patch(
+  "/api/admin/orders/:id/status",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const status = String(req.body.status || "");
+
+      const allowedStatuses = [
+        "Pending",
+        "Processing",
+        "Completed",
+        "Cancelled",
+      ];
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({
+          message: "Invalid order ID.",
+        });
+      }
+
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          message: "Invalid order status.",
+        });
+      }
+
+      const order = await Order.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true, runValidators: true }
+      );
+
+      if (!order) {
+        return res.status(404).json({
+          message: "Order not found.",
+        });
+      }
+
+      res.json({
+        message: "Order status updated successfully.",
+        order,
+      });
+    } catch (error) {
+      console.error("Admin order status error:", error);
+
+      res.status(500).json({
+        message: "Unable to update order status.",
+      });
+    }
+  }
+);
+
 app.post("/api/wallet/upi-request", authenticateToken, async (req, res) => {
   try {
     const amount = Number(req.body.amount);
