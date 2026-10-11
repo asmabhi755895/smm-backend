@@ -627,6 +627,58 @@ app.get(
   }
 );
 
+app.patch(
+  "/api/admin/users/:id",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const name = String(req.body.name || "").trim();
+      const email = String(req.body.email || "").trim().toLowerCase();
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({ message: "Invalid user ID." });
+      }
+
+      if (!name || !email) {
+        return res.status(400).json({
+          message: "Name and email are required.",
+        });
+      }
+
+      const existingUser = await User.findOne({
+        email,
+        _id: { $ne: id },
+      });
+
+      if (existingUser) {
+        return res.status(409).json({
+          message: "That email is already used by another account.",
+        });
+      }
+
+      const user = await User.findByIdAndUpdate(
+        id,
+        { name, email },
+        { new: true, runValidators: true }
+      ).select("-password -__v");
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+
+      res.json({
+        message: "User updated successfully.",
+        user,
+      });
+    } catch (error) {
+      console.error("Admin user update error:", error);
+      res.status(500).json({ message: "Unable to update user." });
+    }
+  }
+);
+
 /* ========== SUPPORT TICKET ROUTES ========== */
 
 // Create a support ticket
