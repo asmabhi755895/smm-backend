@@ -362,7 +362,7 @@ const packageOptions = [
     delivery: "Fast Delivery",
     refill: "30 Days Refill",
     label: "30 Days Refill",
-    multiplier: 1.5,
+    multiplier: 1.3,
   },
   {
     suffix: "03",
@@ -370,7 +370,7 @@ const packageOptions = [
     delivery: "Fast Delivery",
     refill: "90 Days Refill",
     label: "90 Days Refill",
-    multiplier: 2,
+    multiplier: 1.5,
   },
 ];
 
