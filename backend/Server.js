@@ -307,35 +307,37 @@ if (platformSettings && platformSettings.ordersEnabled === false) {
 // Service catalogue — keep IDs and rates synchronized with
 // frontend/src/data/services.js
 const serviceCatalogue = {
-  1: { platform: "Instagram", category: "Likes", rate: 14, min: 100, max: 100000 },
-  2: { platform: "Instagram", category: "Views", rate: 3, min: 100, max: 1000000 },
-  3: { platform: "Instagram", category: "Shares", rate: 10, min: 100, max: 100000 },
-  4: { platform: "Instagram", category: "Followers", rate: 30, min: 100, max: 100000 },
-  5: { platform: "Instagram", category: "Comments", rate: 50, min: 10, max: 10000 },
-  6: { platform: "YouTube", category: "Subscribers", rate: 45, min: 100, max: 100000 },
-  7: { platform: "YouTube", category: "Likes", rate: 20, min: 100, max: 100000 },
-  8: { platform: "YouTube", category: "Views", rate: 10, min: 100, max: 1000000 },
-  9: { platform: "YouTube", category: "Comments", rate: 50, min: 10, max: 10000 },
+  1: { platform: "Instagram", category: "Likes", rate: 2.6, min: 100, max: 100000 },
+  2: { platform: "Instagram", category: "Views", rate: 0.02, min: 100, max: 1000000 },
+  3: { platform: "Instagram", category: "Shares", rate: 1.4, min: 100, max: 100000 },
+  4: { platform: "Instagram", category: "Followers", rate: 23, min: 100, max: 100000 },
+  5: { platform: "Instagram", category: "Comments", rate: 42.21, min: 10, max: 10000 },
+
+  6: { platform: "YouTube", category: "Subscribers", rate: 37, min: 100, max: 100000 },
+  7: { platform: "YouTube", category: "Likes", rate: 14.53, min: 100, max: 100000 },
+  8: { platform: "YouTube", category: "Views", rate: 10.13, min: 100, max: 1000000 },
+  9: { platform: "YouTube", category: "Comments", rate: 62.3, min: 10, max: 10000 },
   10: { platform: "YouTube", category: "Watch Hours", rate: 100, min: 10, max: 10000 },
 
-  11: { platform: "Instagram", category: "Story Views", rate: 3, min: 100, max: 100000 },
-  12: { platform: "Instagram", category: "Profile Visits", rate: 3, min: 100, max: 100000 },
+  11: { platform: "Instagram", category: "Story Views", rate: 12.4, min: 100, max: 100000 },
+  12: { platform: "Instagram", category: "Profile Visits", rate: 1.9, min: 100, max: 100000 },
 
-  13: { platform: "Facebook", category: "Page Followers", rate: 30, min: 100, max: 100000 },
-  14: { platform: "Facebook", category: "Profile Followers", rate: 30, min: 100, max: 100000 },
-  15: { platform: "Facebook", category: "Likes", rate: 14, min: 100, max: 100000 },
-  16: { platform: "Facebook", category: "Views", rate: 3, min: 100, max: 1000000 },
+  13: { platform: "Facebook", category: "Page Followers", rate: 15.14, min: 100, max: 100000 },
+  14: { platform: "Facebook", category: "Profile Followers", rate: 17.53, min: 100, max: 100000 },
+  15: { platform: "Facebook", category: "Likes", rate: 4.1, min: 100, max: 100000 },
+  16: { platform: "Facebook", category: "Views", rate: 0.12, min: 100, max: 1000000 },
   17: { platform: "Facebook", category: "Comments", rate: 50, min: 10, max: 10000 },
-  18: { platform: "Facebook", category: "Shares", rate: 10, min: 100, max: 100000 },
-  19: { platform: "Facebook", category: "Story Views", rate: 3, min: 100, max: 100000 },
+  18: { platform: "Facebook", category: "Shares", rate: 6.2, min: 100, max: 100000 },
+  19: { platform: "Facebook", category: "Story Views", rate: 3.24, min: 100, max: 100000 },
 
-  20: { platform: "Telegram", category: "Channel Members", rate: 30, min: 100, max: 100000 },
-  21: { platform: "Telegram", category: "Group Members", rate: 30, min: 100, max: 100000 },
-  22: { platform: "Telegram", category: "Post Views", rate: 3, min: 100, max: 1000000 },
-  23: { platform: "Telegram", category: "Post Reactions", rate: 10, min: 100, max: 100000 },
-  24: { platform: "Telegram", category: "Post Shares", rate: 10, min: 100, max: 100000 },
-  25: { platform: "Telegram", category: "Comments", rate: 50, min: 10, max: 10000 },
+  20: { platform: "Telegram", category: "Channel Members", rate: 32, min: 100, max: 100000 },
+  21: { platform: "Telegram", category: "Group Members", rate: 27.5, min: 100, max: 100000 },
+  22: { platform: "Telegram", category: "Post Views", rate: 1.24, min: 100, max: 1000000 },
+  23: { platform: "Telegram", category: "Post Reactions", rate: 1.88, min: 100, max: 100000 },
+  24: { platform: "Telegram", category: "Post Shares", rate: 2.5, min: 100, max: 100000 },
+  25: { platform: "Telegram", category: "Comments", rate: 20.2, min: 10, max: 10000 },
 };
+
 
 const service = serviceCatalogue[validServiceId];
 
