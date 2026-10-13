@@ -21,6 +21,7 @@ app.use(express.json());
 const allowedOrigins = [
   "https://growthgenie.netlify.app",
   "https://aishwaryakart.store",
+  "https://www.aishwaryakart.store",
   "http://localhost:5173",
   "http://localhost:3000"
 ];
