@@ -282,6 +282,20 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
 
 app.post("/api/orders", authenticateToken, async (req, res) => {
   try {
+    const userForSubscription = await User.findById(req.userId);
+
+if (!userForSubscription) {
+  return res.status(404).json({
+    message: "User not found"
+  });
+}
+
+if (userForSubscription.subscriptionActive !== true) {
+  return res.status(403).json({
+    code: "SUBSCRIPTION_REQUIRED",
+    message: "Please purchase the ₹100 lifetime subscription before placing orders."
+  });
+}
  const platformSettings = await PlatformSettings.findOne();
 
 if (platformSettings && platformSettings.ordersEnabled === false) {
