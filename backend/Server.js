@@ -306,32 +306,6 @@ if (userForSubscription.subscriptionActive !== true) {
     message: "Please purchase the ₹100 lifetime subscription before placing orders."
   });
 }
-
-const userForSubscription = await User.findById(req.userId);
-
-if (!userForSubscription) {
-  return res.status(404).json({
-    message: "User not found"
-  });
-}
-
-// First check whether the wallet has any funds
-if (Number(userForSubscription.balance || 0) <= 0) {
-  return res.status(400).json({
-    code: "INSUFFICIENT_BALANCE",
-    message: "Insufficient funds. Please add funds first."
-  });
-}
-
-// Then check the subscription
-if (userForSubscription.subscriptionActive !== true) {
-  return res.status(403).json({
-    code: "SUBSCRIPTION_REQUIRED",
-    message: "Please purchase the ₹100 lifetime subscription before placing orders."
-  });
-}
-
-
 if (userForSubscription.subscriptionActive !== true) {
   return res.status(403).json({
     code: "SUBSCRIPTION_REQUIRED",
