@@ -9,6 +9,12 @@ import { services } from "../data/services";
 import { packages } from "../data/packages";
 
 import PlatformLogo from "./PlatformLogo";
+import {
+  FaInstagram,
+  FaYoutube,
+  FaFacebookF,
+  FaTelegramPlane,
+} from "react-icons/fa";
 
 import "./Order.css";
 
@@ -70,6 +76,7 @@ function Order() {
 const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
 const serviceDropdownRef = useRef(null);
   const [showWalletButton, setShowWalletButton] = useState(false);
+  const [subscriptionRequired, setSubscriptionRequired] = useState(false);
 
   const [packageDropdownOpen, setPackageDropdownOpen] = useState(false);
   const packageDropdownRef = useRef(null);
@@ -150,6 +157,7 @@ const serviceDropdownRef = useRef(null);
     setSuccess("");
 
     setShowWalletButton(false);
+        setSubscriptionRequired(false);
     setPackageDropdownOpen(false);
 
   }, [selectedServiceId]);
@@ -163,6 +171,7 @@ const serviceDropdownRef = useRef(null);
     setSuccess("");
 
     setShowWalletButton(false);
+    setSubscriptionRequired(false);
 
     const token = localStorage.getItem("token");
 
@@ -224,7 +233,7 @@ const serviceDropdownRef = useRef(null);
 
       const response = await fetch(
 
-        "https://socialboost-api-5ma2.onrender.com/api/orders",
+        "https://SocialBoost-api-5ma2.onrender.com/api/orders",
 
         {
 
@@ -271,25 +280,37 @@ const serviceDropdownRef = useRef(null);
       }
 
       if (!response.ok) {
+        const errorMessage = (data.message || "Unable to place order.").toLowerCase();
 
-        setError(data.message || "Unable to place order.");
+        const needsWalletFunds =
+          data.code === "INSUFFICIENT_BALANCE" ||
+          errorMessage.includes("insufficient balance") ||
+          errorMessage.includes("insufficient funds");
 
-        if (
+        const needsSubscription =
+          data.code === "SUBSCRIPTION_REQUIRED" ||
+          errorMessage.includes("subscription required") ||
+          errorMessage.includes("purchase a lifetime subscription");
 
-          data.message
-
-            ?.toLowerCase()
-
-            .includes("insufficient balance")
-
-        ) {
-
+        // Wallet message takes priority when the backend reports no funds.
+        if (needsWalletFunds) {
           setShowWalletButton(true);
-
+          setSubscriptionRequired(false);
+          setError("Insufficient funds. Please add funds first.");
+          return;
         }
 
-        return;
+        if (needsSubscription) {
+          setSubscriptionRequired(true);
+          setShowWalletButton(false);
+          setError(
+            "A lifetime subscription is required to place orders. Purchase it for ₹100 to continue."
+          );
+          return;
+        }
 
+        setError(data.message || "Unable to place order.");
+        return;
       }
 
       setSuccess("Order placed successfully!");
@@ -674,21 +695,46 @@ const serviceDropdownRef = useRef(null);
           {/* ADD FUNDS BUTTON */}
 
           {showWalletButton && (
-
             <button
-
               type="button"
-
               className="order-add-funds-button"
-
+              style={{
+                width: "100%",
+                marginTop: "12px",
+                padding: "13px 16px",
+                border: "none",
+                borderRadius: "10px",
+                background: "#e77832",
+                color: "#fff",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
               onClick={() => navigate("/wallet")}
-
             >
-
               Add Funds
-
             </button>
+          )}
 
+          {/* SUBSCRIPTION BUTTON */}
+          {subscriptionRequired && (
+            <button
+              type="button"
+              className="order-subscription-button"
+              style={{
+                width: "100%",
+                marginTop: "12px",
+                padding: "13px 16px",
+                border: "none",
+                borderRadius: "10px",
+                background: "#e77832",
+                color: "#fff",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/subscription")}
+            >
+              Buy Lifetime Subscription – ₹100
+            </button>
           )}
 
           {/* SUCCESS MESSAGE */}
