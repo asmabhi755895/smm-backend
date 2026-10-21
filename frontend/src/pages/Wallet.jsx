@@ -10,7 +10,13 @@ import {
 } from "lucide-react";
 import "./Wallet.css";
 
-const RAZORPAY_PAYMENT_LINK = "https://rzp.io/rzp/Uo5KmSI";
+const RAZORPAY_PAYMENT_LINKS = {
+  25: "https://rzp.io/rzp/Uo5KmSI",
+  50: "https://rzp.io/rzp/WVwU9qGp",
+  100: "https://rzp.io/rzp/fCltrdv",
+  200: "https://rzp.io/rzp/U1K0NM2",
+  500: "https://rzp.io/rzp/3qLELpR",
+};
 const PRESET_AMOUNTS = [20, 50, 100, 200, 500];
 const UPI_QR_IMAGE = "/upi-qr.png";
 
@@ -19,6 +25,9 @@ function Wallet() {
 
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
+  const [transactions, setTransactions] = useState([]);
+const [transactionsLoading, setTransactionsLoading] = useState(true);
+const [transactionsError, setTransactionsError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("UPI_QR");
   const [transactionId, setTransactionId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,7 +46,7 @@ function Wallet() {
 
       try {
         const response = await fetch(
-          "https://socialboost-api-5ma2.onrender.com/api/auth/me",
+          "https://SocialBoost-api-5ma2.onrender.com/api/auth/me",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -61,6 +70,49 @@ function Wallet() {
 
     loadBalance();
   }, [navigate]);
+
+  useEffect(() => {
+    const loadTransactions = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setTransactionsLoading(false);
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://SocialBoost-api-5ma2.onrender.com/api/wallet/transactions",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Unable to load transaction history"
+          );
+        }
+
+        setTransactions(data.transactions || []);
+        setTransactionsError("");
+      } catch (err) {
+        setTransactionsError(
+          err.message || "Unable to load transaction history"
+        );
+      } finally {
+        setTransactionsLoading(false);
+      }
+    };
+
+    loadTransactions();
+  }, [navigate]);
+
 
   const handleUPISubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +148,7 @@ function Wallet() {
 
     try {
       const response = await fetch(
-        "https://socialboost-api-5ma2.onrender.com/api/wallet/upi-request",
+        "https://SocialBoost-api-5ma2.onrender.com/api/wallet/upi-request",
         {
           method: "POST",
           headers: {
@@ -127,23 +179,35 @@ function Wallet() {
     }
   };
 
-  const handleRazorpay = () => {
-    setError("");
-    setMessage("");
 
-    const value = Number(amount);
+const handleRazorpay = () => {
+  setError("");
+  setMessage("");
 
-    if (!PRESET_AMOUNTS.includes(value)) {
-      setError("Please select one of the available amounts.");
-      return;
-    }
+  const value = Number(amount);
 
-    window.open(
-      RAZORPAY_PAYMENT_LINK,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  };
+  if (!PRESET_AMOUNTS.includes(value)) {
+    setError("Please select one of the available amounts.");
+    return;
+  }
+
+  const paymentLink = RAZORPAY_PAYMENT_LINKS[value];
+
+  if (
+    !paymentLink ||
+    !paymentLink.startsWith("https://")
+  ) {
+    setError("Payment link is not configured for this amount.");
+    return;
+  }
+
+  window.open(
+    paymentLink,
+    "_blank",
+    "noopener,noreferrer"
+  );
+};
+
 
   return (
     <div className="wallet-page">
@@ -176,7 +240,7 @@ function Wallet() {
         <header className="wallet-heading">
           <span>YOUR WALLET</span>
           <h1>Add Funds</h1>
-          <p>Manage your SocialBoost wallet.</p>
+          <p>Manage your Aishwarya Kart wallet.</p>
         </header>
 
         <section className="wallet-balance-card">
@@ -211,18 +275,6 @@ function Wallet() {
               }}
             >
               <QrCode size={17} /> UPI QR
-            </button>
-
-            <button
-              type="button"
-              className={paymentMethod === "RAZORPAY" ? "selected" : ""}
-              onClick={() => {
-                setPaymentMethod("RAZORPAY");
-                setError("");
-                setMessage("");
-              }}
-            >
-              <CreditCard size={17} /> Razorpay
             </button>
           </div>
 
@@ -279,52 +331,66 @@ function Wallet() {
               </div>
             </form>
           )}
+        
+        <section className="wallet-transactions">
+          <div className="wallet-transactions-heading">
+            <div>
+              <h2>Transaction History</h2>
+              <p>Your recent wallet activity</p>
+            </div>
+            <WalletIcon size={22} />
+          </div>
 
-          {paymentMethod === "RAZORPAY" && (
-            <div className="razorpay-section">
-              <label>Select Amount (₹)</label>
+          {transactionsLoading ? (
+            <p className="wallet-transactions-empty">
+              Loading transactions...
+            </p>
+          ) : transactionsError ? (
+            <p className="wallet-error" role="alert">
+              {transactionsError}
+            </p>
+          ) : transactions.length === 0 ? (
+            <div className="wallet-transactions-empty">
+              <WalletIcon size={28} />
+              <strong>No transactions yet</strong>
+              <p>Your wallet activity will appear here.</p>
+            </div>
+          ) : (
+            <div className="wallet-transactions-list">
+              {transactions.map((transaction) => (
+                <article
+                  className="wallet-transaction-item"
+                  key={transaction._id}
+                >
+                  <div className="wallet-transaction-icon">
+                    <WalletIcon size={19} />
+                  </div>
 
-              <div className="wallet-amount-options">
-                {PRESET_AMOUNTS.map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={Number(amount) === value ? "selected" : ""}
-                    onClick={() => setAmount(String(value))}
-                  >
-                    ₹{value}
-                  </button>
-                ))}
-              </div>
+                  <div className="wallet-transaction-details">
+                    <strong>{transaction.description}</strong>
+                    <span>
+                      {new Date(transaction.createdAt).toLocaleString()}
+                    </span>
+                    <small>
+                      {transaction.type.replace(/_/g, " ")}
+                    </small>
+                  </div>
 
-              <button
-                type="button"
-                className="wallet-submit"
-                onClick={handleRazorpay}
-                disabled={loading}
-              >
-                Continue to Razorpay
-              </button>
-
-              <small>
-                Check the amount shown on the Razorpay payment page.
-                Your wallet is not credited automatically by this button.
-              </small>
+                  <div className="wallet-transaction-amount">
+                    <strong>
+                      {transaction.type === "ORDER_PAYMENT" ? "−" : "+"}
+                      ₹{Number(transaction.amount).toFixed(2)}
+                    </strong>
+                    <span className={`wallet-transaction-status ${String(transaction.status).toLowerCase()}`}>
+                      {transaction.status}
+                    </span>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
-
-          {error && (
-            <p className="wallet-error" role="alert">
-              {error}
-            </p>
-          )}
-
-          {message && (
-            <p className="wallet-message" role="status">
-              {message}
-            </p>
-          )}
         </section>
+
       </div>
     </div>
   );
