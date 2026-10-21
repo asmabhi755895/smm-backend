@@ -331,6 +331,8 @@ const handleRazorpay = () => {
               </div>
             </form>
           )}
+
+        </section>
         
         <section className="wallet-transactions">
           <div className="wallet-transactions-heading">
